@@ -1,0 +1,24 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Calyx (Leaves) -->
+  <path d="M50 28 C45 14, 38 12, 35 15 C38 22, 45 25, 50 34 Z" fill="#16a34a"/>
+  <path d="M50 32 C35 20, 22 22, 20 28 C26 35, 38 32, 50 38 Z" fill="#22c55e" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M50 32 C65 20, 78 22, 80 28 C74 35, 62 32, 50 38 Z" fill="#22c55e" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M50 28 C55 14, 62 12, 65 15 C62 22, 55 25, 50 34 Z" fill="#4ade80"/>
+  <path d="M50 16 C50 8, 54 6, 56 4 C54 8, 52 10, 50 16 Z" fill="#15803d" stroke="#000" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Strawberry Body -->
+  <path d="M50 34 C30 34, 16 54, 23 73 C30 92, 70 92, 77 73 C84 54, 70 34, 50 34 Z" fill="#ff2d55" stroke="#000" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M32 44 C27 54, 29 65, 35 72 C32 63, 31 52, 38 43 Z" fill="#ffffff" opacity="0.35"/>
+
+  <!-- Achenes (Seeds) -->
+  <ellipse cx="40" cy="45" rx="2" ry="3" fill="#fef08a" stroke="#000" stroke-width="1.2" transform="rotate(15 40 45)"/>
+  <ellipse cx="60" cy="45" rx="2" ry="3" fill="#fef08a" stroke="#000" stroke-width="1.2" transform="rotate(-15 60 45)"/>
+  <ellipse cx="30" cy="55" rx="2" ry="3" fill="#fef08a" stroke="#000" stroke-width="1.2" transform="rotate(25 30 55)"/>
+  <ellipse cx="50" cy="54" rx="2" ry="3" fill="#fef08a" stroke="#000" stroke-width="1.2"/>
+  <ellipse cx="70" cy="55" rx="2" ry="3" fill="#fef08a" stroke="#000" stroke-width="1.2" transform="rotate(-25 70 55)"/>
+  <ellipse cx="38" cy="65" rx="2" ry="3" fill="#fef08a" stroke="#000" stroke-width="1.2" transform="rotate(10 38 65)"/>
+  <ellipse cx="62" cy="65" rx="2" ry="3" fill="#fef08a" stroke="#000" stroke-width="1.2" transform="rotate(-10 62 65)"/>
+  <ellipse cx="50" cy="68" rx="2" ry="3" fill="#fef08a" stroke="#000" stroke-width="1.2"/>
+  <ellipse cx="44" cy="78" rx="2" ry="3" fill="#fef08a" stroke="#000" stroke-width="1.2" transform="rotate(5 44 78)"/>
+  <ellipse cx="56" cy="78" rx="2" ry="3" fill="#fef08a" stroke="#000" stroke-width="1.2" transform="rotate(-5 56 78)"/>
+</svg>
