@@ -1,6 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
-import { ArrowLeft, ShoppingCart, ShoppingBag, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, ShoppingBag, ArrowRight, TrashIcon } from 'lucide-react';
 
 // Example initial cart items matching your products
 const initialCartItems = [
@@ -74,10 +74,10 @@ export default function Cart() {
                 <main className="mx-auto max-w-6xl px-6 py-10">
                     <div className="mb-10">
                         <span className=" flex items-center gap-2 rounded-full border-2 border-[#31513A] bg-[#CDE8B5] px-5 py-2 font-black font-semibold">
-                            <ShoppingCart className="w-5 h-5"/> CHECKOUT COUNTER
+                            <ShoppingCart className="w-5 h-5"/> Checkout Counter
                         </span>
                         <h1 className="mt-4 text-5xl font-black tracking-tight md:text-6xl">
-                            REVIEW YOUR <span className="text-[#F26B82]">GOODIES</span> 🍓
+                            Review Your <span className="text-[#F26B82]">GOODIES</span> 🍓
                         </h1>
                     </div>
 
@@ -141,7 +141,7 @@ export default function Cart() {
                                                 className="rounded-full border-2 border-[#31513A] bg-[#FFF0A8] p-3 font-black shadow-[3px_3px_0_#31513A] transition hover:bg-[#F26B82] hover:text-white"
                                                 title="Remove item"
                                             >
-                                                🗑️
+                                                <TrashIcon className="w-5 h-5"/>
                                             </button>
                                         </div>
                                     </div>
@@ -150,7 +150,7 @@ export default function Cart() {
 
                             {/* ORDER SUMMARY CARD */}
                             <div className="rounded-[2.5rem] border-4 border-[#31513A] bg-white p-8 shadow-[8px_8px_0_#31513A] h-fit">
-                                <h3 className="text-3xl font-black">SUMMARY 📝</h3>
+                                <h3 className="text-3xl font-black">Summary</h3>
 
                                 <div className="mt-6 space-y-4 font-semibold text-[#55725D]">
                                     <div className="flex justify-between">
@@ -167,16 +167,16 @@ export default function Cart() {
                                     </div>
                                 </div>
 
-                                <button
-                                    onClick={() => alert('Proceeding to checkout! 🍓')}
-                                    className="mt-8 w-full rounded-full border-3 border-[#31513A] bg-[#F26B82] py-4 text-center font-black text-white shadow-[5px_5px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
-                                >
-                                    CHECKOUT NOW ✨
-                                </button>
 
-                                <p className="mt-4 text-center text-xs font-bold text-[#55725D]">
-                                    🔒 100% Cute & Safe Transactions
-                                </p>
+                                    <button
+                                        onClick={() => {
+                                            window.location.href =
+                                                "https://tengkumohamadhaikalbintengkuabdullah.bcl.my/embed/form/polaroid";
+                                        }}
+                                        className="mt-8 w-full rounded-full border-3 border-[#31513A] bg-[#F26B82] py-4 text-center font-black text-white shadow-[5px_5px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+                                    >
+                                        Checkout
+                                    </button>
                             </div>
                         </div>
                     )}
