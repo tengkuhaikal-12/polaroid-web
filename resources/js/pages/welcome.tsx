@@ -1,9 +1,22 @@
 import { Head, Link } from '@inertiajs/react';
-import { products } from '@/data/products';
 import { ArrowRight, ShoppingCart, Plus } from 'lucide-react';
 
+interface Product {
+    id: number;
+    name: string;
+    price: string | number;
+    prints: number | string;
+    image: string;
+    color: string;
+}
 
-export default function Welcome() {
+interface WelcomeProps {
+    products: Product[];
+    [key: string]: unknown;
+}
+
+
+export default function Welcome({ products }: WelcomeProps) {
 
     return (
         <>
@@ -27,6 +40,13 @@ export default function Welcome() {
                         <a href="#contact" className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition">
                             Contact
                         </a>
+
+                        <Link
+                            href="/products"
+                            className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition"
+                        >
+                            Manage
+                        </Link>
                     </div>
 
                     <Link href="/cart" className="rounded-full border-2 border-[#31513A] bg-[#CDE8B5] px-5 py-2 font-black shadow-[3px_3px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none flex items-center gap-2">
@@ -64,14 +84,14 @@ export default function Welcome() {
                         <div className="mt-8 flex flex-wrap gap-4">
                             <a
                                 href="#shop"
-                                className="rounded-full border-2 border-[#31513A] bg-[#F26B82] px-7 py-4 font-black text-white shadow-[5px_5px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+                                className="rounded-full border-2 border-[#31513A] bg-[#F26B82] px-7 py-4 text-white shadow-[5px_5px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
                             >
                                 Shop Prints 🍓
                             </a>
 
                             <a
                                 href="#how"
-                                className="rounded-full border-2 border-[#31513A] bg-[#CDE8B5] px-7 py-4 font-black shadow-[5px_5px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+                                className="rounded-full border-2 border-[#31513A] bg-[#CDE8B5] px-7 py-4  shadow-[5px_5px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
                             >
                                 How It Works <ArrowRight className="w-5 h-5 inline-block ml-2" />
                             </a>
@@ -109,7 +129,7 @@ export default function Welcome() {
                 </div>
 
                 {/* PRODUCTS */}
-                <section id="shop" className="mx-auto max-w-6xl px-6 py-24">
+                <section id="shop" className="mx-auto max-w-6xl px-6 py-10">
 
                     <div className="mb-12 text-center">
                         <p className="font-black text-[#F26B82]">♡ Pick your pack ♡</p>
@@ -122,9 +142,9 @@ export default function Welcome() {
                     </div>
 
                     <div className="grid gap-8 md:grid-cols-3">
-                        {products.map((product, index) => (
+                        {products.map((product) => (
                             <div
-                                key={product.name}
+                                key={product.id}
                                 className={`rounded-[2rem] border-4 border-[#31513A] ${product.color} p-5 shadow-[7px_7px_0_#31513A] `}
                             >
                                 <div className="flex h-52 items-center justify-center overflow-hidden rounded-[1.5rem] border-2 border-[#31513A] bg-black p-3">
@@ -137,18 +157,21 @@ export default function Welcome() {
 
                                 <div className="mt-5">
                                     <div className="flex items-center justify-between">
-                                        <h3 className="text-2xl font-black">
+                                        <h3 className="text-2xl">
                                             {product.name}
                                         </h3>
-                                        <span className="text-xl font-black">
-                                            {product.price}
-                                        </span>
 
+                                        <p className="text-[#55725D]">
+                                            {product.prints}
+                                        </p>
                                     </div>
 
-                                    <p className="mt-2 font-semibold text-[#55725D]">
-                                        {product.prints}
-                                    </p>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xl mt-3 justify-end font-black">
+                                            RM {product.price}
+                                        </span>
+                                    </div>
+
 
                                     <div className="mt-5 w-full">
                                         <button className="w-full flex items-center justify-center gap-2 rounded-full border-2 border-[#31513A] bg-[#F26B82] px-5 py-2 font-semibold text-white shadow-[3px_3px_0_#31513A] hover:translate-x-1 hover:translate-y-1 hover:shadow-none text-sm md:text-base transition">
