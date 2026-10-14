@@ -1,6 +1,6 @@
-import { Head , Link} from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { products } from '@/data/products';
-import { ArrowRight, ShoppingCart} from 'lucide-react';
+import { ArrowRight, ShoppingCart, Plus } from 'lucide-react';
 
 
 export default function Welcome() {
@@ -18,21 +18,19 @@ export default function Welcome() {
                             tmhta's!
                         </div>
                     </div>
-
                     <div className="hidden gap-3 rounded-full border-2 border-[#31513A] bg-white/70 px-3 py-2 font-bold md:flex">
                         <a href="#shop" className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition">
-                            SHOP
-                        </a>
+                            Shop                        </a>
                         <a href="#how" className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition">
-                            HOW IT WORKS
+                            How It Works
                         </a>
                         <a href="#contact" className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition">
-                            CONTACT
+                            Contact
                         </a>
                     </div>
 
                     <Link href="/cart" className="rounded-full border-2 border-[#31513A] bg-[#CDE8B5] px-5 py-2 font-black shadow-[3px_3px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none flex items-center gap-2">
-                        <ShoppingCart className="w-5 h-5"/>CART
+                        <ShoppingCart className="w-5 h-5" />Cart
                     </Link>
                 </nav>
 
@@ -44,7 +42,7 @@ export default function Welcome() {
                     <div className="absolute bottom-10 left-1/2 text-3xl">♡</div>
 
                     <div>
-                        <div className="mb-5 inline-block rotate-[-3deg] rounded-full border-2 border-[#31513A] bg-[#FFF0A8] px-5 py-2 font-black font-semibold shadow-[4px_4px_0_#31513A]">
+                        <div className="mb-5 inline-block  rounded-full border-2 border-[#31513A] bg-[#FFF0A8] px-5 py-2 font-black font-semibold shadow-[4px_4px_0_#31513A]">
                             ✨ YOUR MEMORIES, BUT CUTER ✨
                         </div>
 
@@ -68,14 +66,14 @@ export default function Welcome() {
                                 href="#shop"
                                 className="rounded-full border-2 border-[#31513A] bg-[#F26B82] px-7 py-4 font-black text-white shadow-[5px_5px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
                             >
-                                SHOP PRINTS 🍓
+                                Shop Prints 🍓
                             </a>
 
                             <a
                                 href="#how"
                                 className="rounded-full border-2 border-[#31513A] bg-[#CDE8B5] px-7 py-4 font-black shadow-[5px_5px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
                             >
-                                HOW IT WORKS <ArrowRight className="w-5 h-5 inline-block ml-2" />
+                                How It Works <ArrowRight className="w-5 h-5 inline-block ml-2" />
                             </a>
                         </div>
                     </div>
@@ -114,7 +112,7 @@ export default function Welcome() {
                 <section id="shop" className="mx-auto max-w-6xl px-6 py-24">
 
                     <div className="mb-12 text-center">
-                        <p className="font-black text-[#F26B82]">♡ PICK YOUR PACK ♡</p>
+                        <p className="font-black text-[#F26B82]">♡ Pick your pack ♡</p>
 
                         <h2 className="mt-2 text-5xl font-black tracking-tight md:text-6xl">
                             PRINT SOMETHING
@@ -127,7 +125,7 @@ export default function Welcome() {
                         {products.map((product, index) => (
                             <div
                                 key={product.name}
-                                className={`rounded-[2rem] border-4 border-[#31513A] ${product.color} p-5 shadow-[7px_7px_0_#31513A] transition hover:-translate-y-2`}
+                                className={`rounded-[2rem] border-4 border-[#31513A] ${product.color} p-5 shadow-[7px_7px_0_#31513A] `}
                             >
                                 <div className="flex h-52 items-center justify-center overflow-hidden rounded-[1.5rem] border-2 border-[#31513A] bg-black p-3">
                                     <img
@@ -142,23 +140,19 @@ export default function Welcome() {
                                         <h3 className="text-2xl font-black">
                                             {product.name}
                                         </h3>
-
-                                        <span className="rounded-full border-2 border-[#31513A] bg-white px-3 py-1 text-sm font-black">
-                                            #{index + 1}
+                                        <span className="text-xl font-black">
+                                            {product.price}
                                         </span>
+
                                     </div>
 
                                     <p className="mt-2 font-semibold text-[#55725D]">
                                         {product.prints}
                                     </p>
 
-                                    <div className="mt-5 flex items-center justify-between">
-                                        <span className="text-3xl font-black">
-                                            {product.price}
-                                        </span>
-
-                                        <button className="rounded-full border-2 border-[#31513A] bg-[#F26B82] px-5 py-2 font-black text-white shadow-[3px_3px_0_#31513A] hover:translate-x-1 hover:translate-y-1 hover:shadow-none">
-                                            ADD +
+                                    <div className="mt-5 w-full">
+                                        <button className="w-full flex items-center justify-center gap-2 rounded-full border-2 border-[#31513A] bg-[#F26B82] px-5 py-2 font-semibold text-white shadow-[3px_3px_0_#31513A] hover:translate-x-1 hover:translate-y-1 hover:shadow-none text-sm md:text-base transition">
+                                            <Plus className="w-5 h-5 inline-block" /> Add to cart
                                         </button>
                                     </div>
                                 </div>
@@ -172,23 +166,23 @@ export default function Welcome() {
                     <div className="mx-auto max-w-6xl px-6">
 
                         <div className="mb-14">
-    <span className="rounded-full border-2 border-[#31513A] bg-[#FFF0A8] px-5 py-2 font-black">
-        01 — EASY PEASY
-    </span>
+                            <span className="rounded-full border-2 border-[#31513A] bg-[#FFF0A8] px-5 py-2 font-black">
+                                01 — EASY PEASY
+                            </span>
 
-    <h2 className="mt-5 text-5xl font-black md:text-7xl leading-tight">
-        FROM PHONE
-        <br />
-        <span className="inline-flex items-center gap-3">
-            TO PAPER 
-            <img
-                src="/images/icon/camera-svgrepo-com.svg"
-                alt="camera icon"
-                className="h-12 w-12 md:h-16 md:w-16 object-contain"
-            />
-        </span>
-    </h2>
-</div>
+                            <h2 className="mt-5 text-5xl font-black md:text-7xl leading-tight">
+                                FROM PHONE
+                                <br />
+                                <span className="inline-flex items-center gap-3">
+                                    TO PAPER
+                                    <img
+                                        src="/images/icon/camera-svgrepo-com.svg"
+                                        alt="camera icon"
+                                        className="h-12 w-12 md:h-16 md:w-16 object-contain"
+                                    />
+                                </span>
+                            </h2>
+                        </div>
 
                         <div className="grid gap-6 md:grid-cols-3">
                             {[
