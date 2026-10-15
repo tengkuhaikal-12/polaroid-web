@@ -47,6 +47,14 @@ export default function Welcome({ products }: WelcomeProps) {
                         >
                             Manage
                         </Link>
+
+                        <Link
+                            href="/selfie"
+                            className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition"
+                        >
+                            Selfie
+                        </Link>
+
                     </div>
 
                     <Link href="/cart" className="rounded-full border-2 border-[#31513A] bg-[#CDE8B5] px-5 py-2 font-black shadow-[3px_3px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none flex items-center gap-2">
@@ -145,39 +153,43 @@ export default function Welcome({ products }: WelcomeProps) {
                         {products.map((product) => (
                             <div
                                 key={product.id}
-                                className={`rounded-[2rem] border-4 border-[#31513A] ${product.color} p-5 shadow-[7px_7px_0_#31513A] `}
+                                // 1. Added flex flex-col justify-between here
+                                className={`rounded-[2rem] border-4 border-[#31513A] ${product.color} p-5 shadow-[7px_7px_0_#31513A] flex flex-col justify-between`}
                             >
-                                <div className="flex h-52 items-center justify-center overflow-hidden rounded-[1.5rem] border-2 border-[#31513A] bg-black p-3">
-                                    <img
-                                        src={product.image}
-                                        alt={product.name}
-                                        className="h-full w-full object-contain shadow-sm"
-                                    />
+                                <div>
+                                    <div className="flex h-52 items-center justify-center overflow-hidden rounded-[1.5rem] border-2 border-[#31513A] bg-black p-3">
+                                        <img
+                                            src={product.image}
+                                            alt={product.name}
+                                            className="h-full w-full object-contain shadow-sm"
+                                        />
+                                    </div>
+
+                                    {/* 2. Added flex-1 to let text content fill space */}
+                                    <div className="mt-5 flex flex-col">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-2xl font-black">
+                                                {product.name}
+                                            </h3>
+
+                                            <p className="text-[#55725D] font-semibold">
+                                                {product.prints}
+                                            </p>
+                                        </div>
+
+                                        <div className="flex items-center justify-between mt-3">
+                                            <span className="text-xl font-black">
+                                                RM {product.price}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div className="mt-5">
-                                    <div className="flex items-center justify-between">
-                                        <h3 className="text-2xl">
-                                            {product.name}
-                                        </h3>
-
-                                        <p className="text-[#55725D]">
-                                            {product.prints}
-                                        </p>
-                                    </div>
-
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xl mt-3 justify-end font-black">
-                                            RM {product.price}
-                                        </span>
-                                    </div>
-
-
-                                    <div className="mt-5 w-full">
-                                        <button className="w-full flex items-center justify-center gap-2 rounded-full border-2 border-[#31513A] bg-[#F26B82] px-5 py-2 font-semibold text-white shadow-[3px_3px_0_#31513A] hover:translate-x-1 hover:translate-y-1 hover:shadow-none text-sm md:text-base transition">
-                                            <Plus className="w-5 h-5 inline-block" /> Add to cart
-                                        </button>
-                                    </div>
+                                {/* 3. Changed mt-5 to mt-auto so it always pins to the bottom */}
+                                <div className="mt-auto pt-5 w-full">
+                                    <button className="w-full flex items-center justify-center gap-2 rounded-full border-2 border-[#31513A] bg-[#F26B82] px-5 py-2 font-semibold text-white shadow-[3px_3px_0_#31513A] hover:translate-x-1 hover:translate-y-1 hover:shadow-none text-sm md:text-base transition">
+                                        <Plus className="w-5 h-5 inline-block" /> Add to cart
+                                    </button>
                                 </div>
                             </div>
                         ))}

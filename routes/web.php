@@ -14,6 +14,7 @@ Route::get('/', function () {
 
 Route::inertia('/cart', 'cart/cart')->name('cart');
 Route::inertia('/checkout', 'checkout/checkout')->name('checkout');
+Route::inertia('/selfie', 'camera/CaptureSelfie')->name('selfie');
 
 // Product Management CRUD Routes (Inertia)
 Route::inertia('/products', 'product/ProductManager')->name('product.index');

@@ -16,7 +16,7 @@ interface EditProps {
     [key: string]: unknown;
 }
 
-export default function EditProduct({product}: EditProps) {
+export default function EditProduct({ product }: EditProps) {
     const { data, setData, post, processing, errors } = useForm<{
         name: string;
         price: string | number;
