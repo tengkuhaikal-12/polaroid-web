@@ -1,5 +1,7 @@
-import { Head, Link } from '@inertiajs/react';
-import { ArrowRight, ShoppingCart, Plus } from 'lucide-react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { ArrowRight, ShoppingCart, Plus, LogIn } from 'lucide-react';
+import Navbar from '@/component/Navbar';
+
 
 interface Product {
     id: number;
@@ -18,6 +20,8 @@ interface WelcomeProps {
 
 export default function Welcome({ products }: WelcomeProps) {
 
+    const { auth } = usePage().props; // Access auth from the global page props
+
     return (
         <>
             <Head title="Home" />
@@ -25,42 +29,7 @@ export default function Welcome({ products }: WelcomeProps) {
             <div className="min-h-screen overflow-hidden bg-[#FFF8EA] text-[#31513A]">
 
                 {/* NAVBAR */}
-                <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-                    <div className="flex items-center gap-2">
-                        <div className="rotate-[-6deg] rounded-full border-2 border-[#31513A] bg-[#FF9EAD] px-4 py-2 font-black shadow-[4px_4px_0_#31513A]">
-                            tmhta's!
-                        </div>
-                    </div>
-                    <div className="hidden gap-3 rounded-full border-2 border-[#31513A] bg-white/70 px-3 py-2 font-bold md:flex">
-                        <a href="#shop" className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition">
-                            Shop                        </a>
-                        <a href="#how" className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition">
-                            How It Works
-                        </a>
-                        <a href="#contact" className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition">
-                            Contact
-                        </a>
-
-                        <Link
-                            href="/products"
-                            className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition"
-                        >
-                            Manage
-                        </Link>
-
-                        <Link
-                            href="/selfie"
-                            className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition"
-                        >
-                            Selfie
-                        </Link>
-
-                    </div>
-
-                    <Link href="/cart" className="rounded-full border-2 border-[#31513A] bg-[#CDE8B5] px-5 py-2 font-black shadow-[3px_3px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none flex items-center gap-2">
-                        <ShoppingCart className="w-5 h-5" />Cart
-                    </Link>
-                </nav>
+                <Navbar auth={auth} />
 
                 {/* HERO */}
                 <section className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 pb-20 pt-10 md:grid-cols-2">
