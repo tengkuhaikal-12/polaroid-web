@@ -1,0 +1,216 @@
+import React, { useRef, useState } from 'react';
+import { Head, Link } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
+import { Camera, RotateCcw, Check, ArrowLeft } from 'lucide-react';
+
+export default function CaptureSelfie() {
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [capturedImage, setCapturedImage] = useState<string | null>(null);
+    const [isStreaming, setIsStreaming] = useState<boolean>(false);
+
+    // Add ratio state ('4:3' default, or '1:1', '16:9')
+    const [aspectRatio, setAspectRatio] = useState<string>('4:3');
+
+    // Map ratio choices to Tailwind height classes
+    const heightClasses: Record<string, string> = {
+        '1:1': 'h-[360px] md:h-[420px]',   // Square
+        '4:3': 'h-[400px] md:h-[480px]',   // Standard photo
+        '16:9': 'h-[280px] md:h-[340px]',  // Widescreen
+    };
+
+    const { data, setData, post, processing } = useForm({
+        image: '' as string | null,
+    });
+
+    const startCamera = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }
+            });
+            if (videoRef.current) {
+                videoRef.current.srcObject = stream;
+                setIsStreaming(true);
+            }
+        } catch (err) {
+            console.error("Error accessing camera: ", err);
+            alert("Unable to access the camera. Please check your browser permissions!");
+        }
+    };
+
+    const stopCamera = () => {
+        if (videoRef.current && videoRef.current.srcObject) {
+            const stream = videoRef.current.srcObject as MediaStream;
+            stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+            videoRef.current.srcObject = null;
+            setIsStreaming(false);
+        }
+    };
+
+    const capturePhoto = () => {
+        if (!videoRef.current || !canvasRef.current) return;
+
+        const width = videoRef.current.videoWidth || 640;
+        const height = videoRef.current.videoHeight || 480;
+        const canvas = canvasRef.current;
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        ctx.translate(width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(videoRef.current, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        setCapturedImage(dataUrl);
+        setData('image', dataUrl);
+
+        stopCamera();
+    };
+
+    const retakePhoto = () => {
+        setCapturedImage(null);
+        setData('image', null);
+        startCamera();
+    };
+
+    const submit = (e: React.FormEvent) => {
+        e.preventDefault();
+        post('/selfie', {
+            onSuccess: () => {
+                stopCamera();
+            }
+        });
+    };
+
+    return (
+        <>
+            <Head title="Capture Your Selfie" />
+
+            <div className="min-h-screen bg-[#FFF8EA] text-[#31513A]">
+
+                <nav className="mx-auto flex w-full items-center justify-between p-5">
+                    <div className="flex items-center gap-2">
+                        <Link href="/" className="rotate-[-6deg] rounded-full border-2 border-[#31513A] bg-[#FF9EAD] px-4 py-2 font-black shadow-[4px_4px_0_#31513A] transition hover:shadow-none hover:translate-x-1 hover:translate-y-1 flex items-center gap-2">
+                            <ArrowLeft />tmhta's!
+                        </Link>
+                    </div>
+                </nav>
+
+                <main className="mx-auto max-w-xl w-full px-6 py-8 flex-1 flex flex-col items-center justify-center">
+
+                    <div className="mb-3 text-center">
+                        <div className="mb-3 inline-block rounded-full border-2 border-[#31513A] bg-[#FFF0A8] px-5 py-1 font-black text-sm shadow-[3px_3px_0_#31513A]">
+                            ✨ SNAP YOUR MOMENT ✨
+                        </div>
+                        <h1 className="text-4xl font-black tracking-tight md:text-5xl">
+                            TAKE A <span className="text-[#F26B82]">SELFIE</span>
+                        </h1>
+                    </div>
+
+                    <div className="w-full rounded-[2.5rem] border-4 border-[#31513A] bg-white p-6 shadow-[8px_8px_0_#31513A]">
+
+                        {!capturedImage ? (
+                            <div className="flex flex-col items-center w-full">
+
+                                {/* Ratio Selector Buttons */}
+                                <div className="flex gap-2 mb-4 w-full justify-center">
+                                    {['1:1', '4:3', '16:9'].map((ratio) => (
+                                        <button
+                                            key={ratio}
+                                            type="button"
+                                            onClick={() => setAspectRatio(ratio)}
+                                            className={`px-4 py-1.5 rounded-full border-2 border-[#31513A] font-black text-sm transition ${aspectRatio === ratio
+                                                ? 'bg-[#F26B82] text-white shadow-[2px_2px_0_#31513A] translate-x-0.5 translate-y-0.5'
+                                                : 'bg-[#FFF0A8] text-[#31513A] shadow-[3px_3px_0_#31513A] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none'
+                                                }`}
+                                        >
+                                            {ratio}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* Camera Feed Container with Dynamic Height */}
+                                <div className={`relative w-full ${heightClasses[aspectRatio]} bg-black rounded-[1.5rem] border-2 border-[#31513A] overflow-hidden flex items-center justify-center mb-6 transition-all duration-300`}>
+                                    <video
+                                        ref={videoRef}
+                                        autoPlay
+                                        playsInline
+                                        muted
+                                        className="w-full h-full object-cover transform -scale-x-100"
+                                    />
+                                    {!isStreaming && (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#FFF8EA] text-[#31513A] p-6 text-center">
+                                            <Camera className="w-16 h-16 mb-2 text-[#F26B82]" />
+                                            <p className="font-black text-lg">Camera is currently off</p>
+                                            <p className="text-sm font-semibold text-[#55725D] mt-1">Click below to give access and start snapping!</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {!isStreaming ? (
+                                    <button
+                                        onClick={startCamera}
+                                        className="w-full rounded-full border-2 border-[#31513A] bg-[#CDE8B5] py-4 font-black shadow-[4px_4px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none flex items-center justify-center gap-2 text-lg"
+                                    >
+                                        <Camera className="w-6 h-6" /> Open Camera
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={capturePhoto}
+                                        className="w-full rounded-full border-2 border-[#31513A] bg-[#F26B82] text-white py-4 font-black shadow-[4px_4px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none flex items-center justify-center gap-2 text-lg"
+                                    >
+                                        <Camera className="w-6 h-6" /> Capture Photo 🍓
+                                    </button>
+                                )}
+                            </div>
+                        ) : (
+                            <form onSubmit={submit} className="flex flex-col items-center space-y-5 w-full">
+                                {/* Captured Preview Container with Matching Dynamic Height */}
+                                <div className={`w-full ${heightClasses[aspectRatio]} rounded-[1.5rem] border-2 border-[#31513A] overflow-hidden bg-black p-2 shadow-sm transition-all duration-300`}>
+                                    <img
+                                        src={capturedImage}
+                                        alt="Captured Selfie Preview"
+                                        className="w-full h-full object-cover rounded-[1rem]"
+                                    />
+                                </div>
+
+                                <p className="font-black text-center text-lg">Looking cute! Ready to print? ♡</p>
+
+                                <div className="flex gap-4 w-full">
+                                    <button
+                                        type="button"
+                                        onClick={retakePhoto}
+                                        className="flex-1 rounded-full border-2 border-[#31513A] bg-[#FFF0A8] py-3 font-black shadow-[3px_3px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none flex items-center justify-center gap-2"
+                                    >
+                                        <RotateCcw className="w-5 h-5" /> Retake
+                                    </button>
+
+                                    <button
+                                        type="submit"
+                                        disabled={processing}
+                                        className="flex-1 rounded-full border-2 border-[#31513A] bg-[#CDE8B5] py-3 font-black shadow-[3px_3px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none flex items-center justify-center gap-2 disabled:opacity-50"
+                                    >
+                                        <Check className="w-5 h-5" /> Use Photo
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+
+                        <canvas ref={canvasRef} className="hidden" />
+                    </div>
+                </main>
+
+
+
+                <div className="rotate-[1deg] border-y-4 border-[#31513A] bg-[#9CCB83] py-3 mt-10">
+                    <div className="whitespace-nowrap text-center font-black tracking-widest text-sm">
+                        ♡ CAPTURE YOUR MEMORIES • POLAROID STYLE • MADE WITH LOVE ♡
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+}

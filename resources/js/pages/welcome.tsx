@@ -1,9 +1,26 @@
-import { Head, Link } from '@inertiajs/react';
-import { products } from '@/data/products';
-import { ArrowRight, ShoppingCart, Plus } from 'lucide-react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { ArrowRight, ShoppingCart, Plus, LogIn } from 'lucide-react';
+import Navbar from '@/component/Navbar';
 
 
-export default function Welcome() {
+interface Product {
+    id: number;
+    name: string;
+    price: string | number;
+    prints: number | string;
+    image: string;
+    color: string;
+}
+
+interface WelcomeProps {
+    products: Product[];
+    [key: string]: unknown;
+}
+
+
+export default function Welcome({ products }: WelcomeProps) {
+
+    const { auth } = usePage().props; // Access auth from the global page props
 
     return (
         <>
@@ -12,27 +29,7 @@ export default function Welcome() {
             <div className="min-h-screen overflow-hidden bg-[#FFF8EA] text-[#31513A]">
 
                 {/* NAVBAR */}
-                <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-                    <div className="flex items-center gap-2">
-                        <div className="rotate-[-6deg] rounded-full border-2 border-[#31513A] bg-[#FF9EAD] px-4 py-2 font-black shadow-[4px_4px_0_#31513A]">
-                            tmhta's!
-                        </div>
-                    </div>
-                    <div className="hidden gap-3 rounded-full border-2 border-[#31513A] bg-white/70 px-3 py-2 font-bold md:flex">
-                        <a href="#shop" className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition">
-                            Shop                        </a>
-                        <a href="#how" className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition">
-                            How It Works
-                        </a>
-                        <a href="#contact" className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition">
-                            Contact
-                        </a>
-                    </div>
-
-                    <Link href="/cart" className="rounded-full border-2 border-[#31513A] bg-[#CDE8B5] px-5 py-2 font-black shadow-[3px_3px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none flex items-center gap-2">
-                        <ShoppingCart className="w-5 h-5" />Cart
-                    </Link>
-                </nav>
+                <Navbar auth={auth} />
 
                 {/* HERO */}
                 <section className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 pb-20 pt-10 md:grid-cols-2">
@@ -64,14 +61,14 @@ export default function Welcome() {
                         <div className="mt-8 flex flex-wrap gap-4">
                             <a
                                 href="#shop"
-                                className="rounded-full border-2 border-[#31513A] bg-[#F26B82] px-7 py-4 font-black text-white shadow-[5px_5px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+                                className="rounded-full border-2 border-[#31513A] bg-[#F26B82] px-7 py-4 text-white shadow-[5px_5px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
                             >
                                 Shop Prints 🍓
                             </a>
 
                             <a
                                 href="#how"
-                                className="rounded-full border-2 border-[#31513A] bg-[#CDE8B5] px-7 py-4 font-black shadow-[5px_5px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+                                className="rounded-full border-2 border-[#31513A] bg-[#CDE8B5] px-7 py-4  shadow-[5px_5px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
                             >
                                 How It Works <ArrowRight className="w-5 h-5 inline-block ml-2" />
                             </a>
@@ -109,7 +106,7 @@ export default function Welcome() {
                 </div>
 
                 {/* PRODUCTS */}
-                <section id="shop" className="mx-auto max-w-6xl px-6 py-24">
+                <section id="shop" className="mx-auto max-w-6xl px-6 py-10">
 
                     <div className="mb-12 text-center">
                         <p className="font-black text-[#F26B82]">♡ Pick your pack ♡</p>
@@ -122,39 +119,46 @@ export default function Welcome() {
                     </div>
 
                     <div className="grid gap-8 md:grid-cols-3">
-                        {products.map((product, index) => (
+                        {products.map((product) => (
                             <div
-                                key={product.name}
-                                className={`rounded-[2rem] border-4 border-[#31513A] ${product.color} p-5 shadow-[7px_7px_0_#31513A] `}
+                                key={product.id}
+                                // 1. Added flex flex-col justify-between here
+                                className={`rounded-[2rem] border-4 border-[#31513A] ${product.color} p-5 shadow-[7px_7px_0_#31513A] flex flex-col justify-between`}
                             >
-                                <div className="flex h-52 items-center justify-center overflow-hidden rounded-[1.5rem] border-2 border-[#31513A] bg-black p-3">
-                                    <img
-                                        src={product.image}
-                                        alt={product.name}
-                                        className="h-full w-full object-contain shadow-sm"
-                                    />
+                                <div>
+                                    <div className="flex h-52 items-center justify-center overflow-hidden rounded-[1.5rem] border-2 border-[#31513A] bg-black p-3">
+                                        <img
+                                            src={product.image}
+                                            alt={product.name}
+                                            className="h-full w-full object-contain shadow-sm"
+                                        />
+                                    </div>
+
+                                    {/* 2. Added flex-1 to let text content fill space */}
+                                    <div className="mt-5 flex flex-col">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-2xl font-black">
+                                                {product.name}
+                                            </h3>
+
+                                            <p className="text-[#55725D] font-semibold">
+                                                {product.prints}
+                                            </p>
+                                        </div>
+
+                                        <div className="flex items-center justify-between mt-3">
+                                            <span className="text-xl font-black">
+                                                RM {product.price}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div className="mt-5">
-                                    <div className="flex items-center justify-between">
-                                        <h3 className="text-2xl font-black">
-                                            {product.name}
-                                        </h3>
-                                        <span className="text-xl font-black">
-                                            {product.price}
-                                        </span>
-
-                                    </div>
-
-                                    <p className="mt-2 font-semibold text-[#55725D]">
-                                        {product.prints}
-                                    </p>
-
-                                    <div className="mt-5 w-full">
-                                        <button className="w-full flex items-center justify-center gap-2 rounded-full border-2 border-[#31513A] bg-[#F26B82] px-5 py-2 font-semibold text-white shadow-[3px_3px_0_#31513A] hover:translate-x-1 hover:translate-y-1 hover:shadow-none text-sm md:text-base transition">
-                                            <Plus className="w-5 h-5 inline-block" /> Add to cart
-                                        </button>
-                                    </div>
+                                {/* 3. Changed mt-5 to mt-auto so it always pins to the bottom */}
+                                <div className="mt-auto pt-5 w-full">
+                                    <button className="w-full flex items-center justify-center gap-2 rounded-full border-2 border-[#31513A] bg-[#F26B82] px-5 py-2 font-semibold text-white shadow-[3px_3px_0_#31513A] hover:translate-x-1 hover:translate-y-1 hover:shadow-none text-sm md:text-base transition">
+                                        <Plus className="w-5 h-5 inline-block" /> Add to cart
+                                    </button>
                                 </div>
                             </div>
                         ))}
