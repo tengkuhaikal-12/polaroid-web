@@ -1,6 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { Head, Link } from '@inertiajs/react';
-import { useForm } from '@inertiajs/react';
+import React, { useRef, useState, useEffect } from 'react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
 import { Camera, RotateCcw, Check, ArrowLeft } from 'lucide-react';
 
 export default function CaptureSelfie() {
@@ -38,14 +37,64 @@ export default function CaptureSelfie() {
         }
     };
 
+
     const stopCamera = () => {
-        if (videoRef.current && videoRef.current.srcObject) {
-            const stream = videoRef.current.srcObject as MediaStream;
-            stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
-            videoRef.current.srcObject = null;
-            setIsStreaming(false);
+        const video = videoRef.current;
+
+        if (video?.srcObject) {
+            const stream = video.srcObject as MediaStream;
+
+            stream.getTracks().forEach((track) => track.stop());
+            video.srcObject = null;
         }
+
+        setIsStreaming(false);
     };
+
+    useEffect(() => {
+        const removeListener = router.on('navigate', () => {
+            stopCamera();
+        });
+
+        return () => {
+            removeListener();
+            stopCamera();
+        };
+    }, []);
+
+    useEffect(() => {
+        // Stop camera when the user switches tabs or minimizes the browser
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                stopCamera();
+            }
+        };
+
+        // Stop camera when the user closes or refreshes the page
+        const handleBeforeUnload = () => {
+            stopCamera();
+        };
+
+        document.addEventListener(
+            'visibilitychange',
+            handleVisibilityChange
+        );
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            document.removeEventListener(
+                'visibilitychange',
+                handleVisibilityChange
+            );
+
+            window.removeEventListener(
+                'beforeunload',
+                handleBeforeUnload
+            );
+        };
+    }, []);
+
 
     const capturePhoto = () => {
         if (!videoRef.current || !canvasRef.current) return;
@@ -202,8 +251,6 @@ export default function CaptureSelfie() {
                         <canvas ref={canvasRef} className="hidden" />
                     </div>
                 </main>
-
-
 
                 <div className="rotate-[1deg] border-y-4 border-[#31513A] bg-[#9CCB83] py-3 mt-10">
                     <div className="whitespace-nowrap text-center font-black tracking-widest text-sm">
