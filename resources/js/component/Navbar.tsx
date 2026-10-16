@@ -15,17 +15,19 @@ export default function Navbar({ auth }: NavbarProps) {
     const user = auth?.user;
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-    // Global Click Sound Effect 🎵
+    // Global Click Sound Effect (Optimized for instant playback)
     useEffect(() => {
+        // Pre-load the audio object once so it's ready instantly
+        const clickAudio = new Audio('/audio/click.wav');
+        clickAudio.volume = 0.3;
+
         const handleGlobalClick = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
 
-            // Check if the clicked element is a button, link, or inside a clickable wrapper
             if (target.closest('button') || target.closest('a') || target.closest('[role="button"]')) {
-                const clickAudio = new Audio('/audio/click.mp3');
-                clickAudio.volume = 0.3; // Adjust volume (0.0 to 1.0)
+                // Reset audio to start so rapid clicks play immediately without waiting
+                clickAudio.currentTime = 0;
                 clickAudio.play().catch((err) => {
-                    // Handles browser auto-play restrictions if user hasn't interacted yet
                     console.log("Audio play blocked:", err);
                 });
             }
@@ -33,7 +35,6 @@ export default function Navbar({ auth }: NavbarProps) {
 
         document.addEventListener('click', handleGlobalClick);
 
-        // Cleanup listener when component unmounts
         return () => {
             document.removeEventListener('click', handleGlobalClick);
         };

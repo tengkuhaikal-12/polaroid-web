@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, ShoppingCart, ShoppingBag, ArrowRight, TrashIcon } from 'lucide-react';
 
 // Example initial cart items matching your products
@@ -48,6 +48,31 @@ export default function Cart() {
     const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
     const shipping = cartItems.length > 0 ? 5 : 0;
     const total = subtotal + shipping;
+
+    // Global Click Sound Effect (Optimized for instant playback)
+    useEffect(() => {
+        // Pre-load the audio object once so it's ready instantly
+        const clickAudio = new Audio('/audio/click.wav');
+        clickAudio.volume = 0.3;
+
+        const handleGlobalClick = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+
+            if (target.closest('button') || target.closest('a') || target.closest('[role="button"]')) {
+                // Reset audio to start so rapid clicks play immediately without waiting
+                clickAudio.currentTime = 0;
+                clickAudio.play().catch((err) => {
+                    console.log("Audio play blocked:", err);
+                });
+            }
+        };
+
+        document.addEventListener('click', handleGlobalClick);
+
+        return () => {
+            document.removeEventListener('click', handleGlobalClick);
+        };
+    }, []);
 
     return (
         <>
