@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from '@inertiajs/react';
 import { LogIn, LogOut, X } from 'lucide-react';
 
@@ -14,6 +14,30 @@ interface NavbarProps {
 export default function Navbar({ auth }: NavbarProps) {
     const user = auth?.user;
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    // Global Click Sound Effect 🎵
+    useEffect(() => {
+        const handleGlobalClick = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+
+            // Check if the clicked element is a button, link, or inside a clickable wrapper
+            if (target.closest('button') || target.closest('a') || target.closest('[role="button"]')) {
+                const clickAudio = new Audio('/audio/click.mp3');
+                clickAudio.volume = 0.3; // Adjust volume (0.0 to 1.0)
+                clickAudio.play().catch((err) => {
+                    // Handles browser auto-play restrictions if user hasn't interacted yet
+                    console.log("Audio play blocked:", err);
+                });
+            }
+        };
+
+        document.addEventListener('click', handleGlobalClick);
+
+        // Cleanup listener when component unmounts
+        return () => {
+            document.removeEventListener('click', handleGlobalClick);
+        };
+    }, []);
 
     return (
         <>
