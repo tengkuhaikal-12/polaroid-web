@@ -4,6 +4,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartController;
 use App\Models\Product; // Make sure this is imported
 
 /*
@@ -18,7 +19,10 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::inertia('/cart', 'cart/cart')->name('cart');
+Route::get('/cart', [CartController::class, 'index'])->name('cart');
+Route::post('/cart/items', [CartController::class, 'store'])->name('cart.items.store');
+Route::patch('/cart/items/{cartItem}', [CartController::class, 'update'])->name('cart.items.update');
+Route::delete('/cart/items/{cartItem}', [CartController::class, 'destroy'])->name('cart.items.destroy');
 Route::inertia('/checkout', 'checkout/checkout')->name('checkout');
 Route::inertia('/selfie', 'camera/CaptureSelfie')->name('selfie');
 
@@ -63,7 +67,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('product.edit');
 
-    Route::post('/products/{product}', [ProductController::class, 'update'])->name('product.update'); 
     Route::match(['post', 'put'], '/products/{product}', [ProductController::class, 'update'])->name('product.update');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('product.destroy');
 });
