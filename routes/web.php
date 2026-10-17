@@ -4,8 +4,9 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
+use App\Models\Product;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\CartController;
-use App\Models\Product; // Make sure this is imported
 
 /*
 |--------------------------------------------------------------------------
@@ -70,3 +71,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::match(['post', 'put'], '/products/{product}', [ProductController::class, 'update'])->name('product.update');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('product.destroy');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Payment Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::post('/checkout', [PaymentController::class, 'checkout'])->name('payment.checkout');
+Route::get('/payment/return', [PaymentController::class, 'returnUrl'])->name('payment.return');
+Route::post('/payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');

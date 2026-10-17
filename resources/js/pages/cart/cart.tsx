@@ -1,4 +1,5 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { useState } from 'react';
 import {
     ArrowLeft,
     ArrowRight,
@@ -25,6 +26,9 @@ type CartProps = { cart: { id: number; items: CartItem[] } };
 const currency = (value: string | number) => `RM${Number(value).toFixed(2)}`;
 
 export default function Cart({ cart }: CartProps) {
+    const { auth } = usePage().props as { auth: { user: { name: string; email: string; phone?: string } } };
+    const [paymentChannel, setPaymentChannel] = useState('1'); // Default to FPX / Channel 1
+
     const items = cart.items;
     const itemCount = items.reduce((total, item) => total + item.quantity, 0);
     const subtotal = items.reduce(
@@ -46,6 +50,17 @@ export default function Cart({ cart }: CartProps) {
         );
     };
 
+    const handleBayarcashCheckout = (cartId: number, totalAmount: number) => {
+        router.post('/checkout', {
+            cart_id: cartId,
+            amount: totalAmount,
+            name: auth.user?.name || 'Customer Name',
+            email: auth.user?.email || 'customer@email.com',
+            phone: auth.user?.phone || '0123456789',
+            payment_channel: paymentChannel,
+        });
+    };
+
     return (
         <>
             <Head title="Cart" />
@@ -58,20 +73,17 @@ export default function Cart({ cart }: CartProps) {
                         <ArrowLeft className="h-5 w-5" /> tmhta&apos;s!
                     </Link>
                     <div className="flex items-center gap-2 rounded-full border-2 border-[#31513A] bg-[#FFF0A8] px-5 py-2 font-black shadow-[3px_3px_0_#31513A]">
-                        <ShoppingBag className="h-5 w-5" /> YOUR BAG (
-                        {itemCount})
+                        <ShoppingBag className="h-5 w-5" /> YOUR BAG ({itemCount})
                     </div>
                 </nav>
 
                 <main className="mx-auto max-w-6xl px-6 py-10">
                     <div className="mb-10">
                         <span className="flex items-center gap-2 rounded-full border-2 border-[#31513A] bg-[#CDE8B5] px-5 py-2 font-black">
-                            <ShoppingCart className="h-5 w-5" /> Checkout
-                            Counter
+                            <ShoppingCart className="h-5 w-5" /> Checkout Counter
                         </span>
                         <h1 className="mt-4 text-5xl font-black tracking-tight md:text-6xl">
-                            Review Your{' '}
-                            <span className="text-[#F26B82]">GOODIES</span> 🍓
+                            Review Your <span className="text-[#F26B82]">GOODIES</span> 🍓
                         </h1>
                     </div>
 
@@ -82,15 +94,13 @@ export default function Cart({ cart }: CartProps) {
                                 Your cart is feeling a bit lonely!
                             </h2>
                             <p className="mt-2 font-semibold text-[#55725D]">
-                                Time to fill it up with some cute polaroid
-                                prints.
+                                Time to fill it up with some cute polaroid prints.
                             </p>
                             <Link
                                 href="/"
                                 className="mt-8 inline-flex items-center gap-2 rounded-full border-2 border-[#31513A] bg-[#F26B82] px-8 py-4 font-black text-white shadow-[4px_4px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
                             >
-                                START SHOPPING{' '}
-                                <ArrowRight className="h-5 w-5" />
+                                START SHOPPING <ArrowRight className="h-5 w-5" />
                             </Link>
                         </div>
                     ) : (
@@ -128,27 +138,15 @@ export default function Cart({ cart }: CartProps) {
                                         <div className="flex w-full items-center justify-between gap-4 sm:w-auto">
                                             <div className="flex items-center rounded-full border-2 border-[#31513A] bg-white px-3 py-1 font-black shadow-[3px_3px_0_#31513A]">
                                                 <button
-                                                    onClick={() =>
-                                                        updateQuantity(
-                                                            item,
-                                                            item.quantity - 1,
-                                                        )
-                                                    }
+                                                    onClick={() => updateQuantity(item, item.quantity - 1)}
                                                     className="px-2 transition hover:text-[#F26B82]"
                                                     aria-label={`Remove one ${item.product.name}`}
                                                 >
                                                     −
                                                 </button>
-                                                <span className="px-3">
-                                                    {item.quantity}
-                                                </span>
+                                                <span className="px-3">{item.quantity}</span>
                                                 <button
-                                                    onClick={() =>
-                                                        updateQuantity(
-                                                            item,
-                                                            item.quantity + 1,
-                                                        )
-                                                    }
+                                                    onClick={() => updateQuantity(item, item.quantity + 1)}
                                                     className="px-2 transition hover:text-[#F26B82]"
                                                     aria-label={`Add one ${item.product.name}`}
                                                 >
@@ -157,12 +155,9 @@ export default function Cart({ cart }: CartProps) {
                                             </div>
                                             <button
                                                 onClick={() =>
-                                                    router.delete(
-                                                        `/cart/items/${item.id}`,
-                                                        {
-                                                            preserveScroll: true,
-                                                        },
-                                                    )
+                                                    router.delete(`/cart/items/${item.id}`, {
+                                                        preserveScroll: true,
+                                                    })
                                                 }
                                                 className="rounded-full border-2 border-[#31513A] bg-[#FFF0A8] p-3 font-black shadow-[3px_3px_0_#31513A] transition hover:bg-[#F26B82] hover:text-white"
                                                 title="Remove item"
@@ -173,6 +168,7 @@ export default function Cart({ cart }: CartProps) {
                                     </div>
                                 ))}
                             </div>
+
                             <div className="h-fit rounded-[2.5rem] border-4 border-[#31513A] bg-white p-8 shadow-[8px_8px_0_#31513A]">
                                 <h3 className="text-3xl font-black">Summary</h3>
                                 <div className="mt-6 space-y-4 font-semibold text-[#55725D]">
@@ -188,6 +184,22 @@ export default function Cart({ cart }: CartProps) {
                                             {currency(shipping)}
                                         </span>
                                     </div>
+
+                                    {/* Payment Channel Selection */}
+                                    <div className="pt-2">
+                                        <label className="block mb-2 text-sm font-black text-[#31513A]">
+                                            Select Payment Channel
+                                        </label>
+                                            <select
+                                                value={paymentChannel}
+                                                onChange={(e) => setPaymentChannel(e.target.value)}
+                                                className="w-full rounded-2xl border-2 border-[#31513A] bg-[#FFF8EA] px-4 py-3 font-bold text-[#31513A] shadow-[3px_3px_0_#31513A] focus:outline-none"
+                                            >
+                                                <option value="1">FPX (Online Banking)</option>
+                                                <option value="5">DuitNow Online Banking/Wallets</option>
+                                            </select>
+                                    </div>
+
                                     <div className="flex justify-between border-t-2 border-dashed border-[#31513A]/30 pt-4 text-xl font-black text-[#31513A]">
                                         <span>Total</span>
                                         <span className="text-[#F26B82]">
@@ -197,12 +209,11 @@ export default function Cart({ cart }: CartProps) {
                                 </div>
                                 <button
                                     onClick={() => {
-                                        window.location.href =
-                                            'https://tengkumohamadhaikalbintengkuabdullah.bcl.my/embed/form/polaroid';
+                                        handleBayarcashCheckout(cart.id, subtotal + shipping);
                                     }}
                                     className="mt-8 w-full rounded-full border-2 border-[#31513A] bg-[#F26B82] py-4 text-center font-black text-white shadow-[5px_5px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
                                 >
-                                    Checkout
+                                    Proceed to Payment
                                 </button>
                             </div>
                         </div>
