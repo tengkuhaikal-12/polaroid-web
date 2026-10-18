@@ -4,7 +4,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
-use App\Models\Product; // Make sure this is imported
+use App\Models\Product;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,8 +18,7 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::inertia('/cart', 'cart/cart')->name('cart');
-Route::inertia('/checkout', 'checkout/checkout')->name('checkout');
+
 Route::inertia('/selfie', 'camera/CaptureSelfie')->name('selfie');
 
 Route::inertia('/dashboard', 'dashboard/Dashboard')->name('dashboard')->middleware(['auth', 'verified']);
@@ -66,4 +65,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/products/{product}', [ProductController::class, 'update'])->name('product.update'); 
     Route::match(['post', 'put'], '/products/{product}', [ProductController::class, 'update'])->name('product.update');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('product.destroy');
+
+
+    Route::inertia('/cart', 'cart/cart')->name('cart');
+    Route::inertia('/checkout', 'checkout/checkout')->name('checkout');
 });

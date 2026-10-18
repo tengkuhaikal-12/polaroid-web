@@ -3,14 +3,18 @@ import { Head, Link } from '@inertiajs/react';
 import { useForm } from '@inertiajs/react';
 import { Camera, RotateCcw, Check, ArrowLeft } from 'lucide-react';
 
-export default function CaptureSelfie() {
+interface CaptureSelfieProps {
+    isHome: boolean;
+}
+
+export default function CaptureSelfie({ isHome }: CaptureSelfieProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [capturedImage, setCapturedImage] = useState<string | null>(null);
     const [isStreaming, setIsStreaming] = useState<boolean>(false);
 
     // Add ratio state ('4:3' default, or '1:1', '16:9')
-    const [aspectRatio, setAspectRatio] = useState<string>('4:3');
+    const [aspectRatio, setAspectRatio] = useState<string>('16:9');
 
     // Map ratio choices to Tailwind height classes
     const heightClasses: Record<string, string> = {
@@ -91,23 +95,25 @@ export default function CaptureSelfie() {
 
             <div className="min-h-screen bg-[#FFF8EA] text-[#31513A]">
 
-                <nav className="mx-auto flex w-full items-center justify-between p-5">
-                    <div className="flex items-center gap-2">
-                        <Link href="/" className="rotate-[-6deg] rounded-full border-2 border-[#31513A] bg-[#FF9EAD] px-4 py-2 font-black shadow-[4px_4px_0_#31513A] transition hover:shadow-none hover:translate-x-1 hover:translate-y-1 flex items-center gap-2">
-                            <ArrowLeft />tmhta's!
-                        </Link>
-                    </div>
-                </nav>
+                <main className="mx-auto max-w-xl w-full p-6 flex-1 flex flex-col items-center justify-center">
 
-                <main className="mx-auto max-w-xl w-full px-6 py-8 flex-1 flex flex-col items-center justify-center">
-
-                    <div className="mb-3 text-center">
-                        <div className="mb-3 inline-block rounded-full border-2 border-[#31513A] bg-[#FFF0A8] px-5 py-1 font-black text-sm shadow-[3px_3px_0_#31513A]">
-                            ✨ SNAP YOUR MOMENT ✨
+                    <div className="relative w-full flex items-center justify-center mb-4">
+                        {!isHome && (
+                            <Link
+                                href="/"
+                                className="absolute left-0 rotate-[-6deg] rounded-full border-2 border-[#31513A] bg-[#FF9EAD] p-3 font-black shadow-[4px_4px_0_#31513A] transition hover:shadow-none hover:translate-x-1 hover:translate-y-1 flex items-center gap-2"
+                            >
+                                <ArrowLeft />
+                            </Link>
+                        )}
+                        <div className="text-center">
+                            <h3 className="mb-3 inline-block rounded-full border-2 border-[#31513A] bg-[#FFF0A8] px-5 py-1 font-black text-sm shadow-[3px_3px_0_#31513A]">
+                                ✨ snap your moment✨
+                            </h3>
+                            <h1 className="text-4xl font-black tracking-tight md:text-5xl">
+                                take a <span className="text-[#F26B82]">selfie</span>
+                            </h1>
                         </div>
-                        <h1 className="text-4xl font-black tracking-tight md:text-5xl">
-                            TAKE A <span className="text-[#F26B82]">SELFIE</span>
-                        </h1>
                     </div>
 
                     <div className="w-full rounded-[2.5rem] border-4 border-[#31513A] bg-white p-6 shadow-[8px_8px_0_#31513A]">
@@ -202,14 +208,6 @@ export default function CaptureSelfie() {
                         <canvas ref={canvasRef} className="hidden" />
                     </div>
                 </main>
-
-
-
-                <div className="rotate-[1deg] border-y-4 border-[#31513A] bg-[#9CCB83] py-3 mt-10">
-                    <div className="whitespace-nowrap text-center font-black tracking-widest text-sm">
-                        ♡ CAPTURE YOUR MEMORIES • POLAROID STYLE • MADE WITH LOVE ♡
-                    </div>
-                </div>
             </div>
         </>
     );

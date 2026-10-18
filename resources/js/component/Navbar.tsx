@@ -14,6 +14,16 @@ interface NavbarProps {
 export default function Navbar({ auth }: NavbarProps) {
     const user = auth?.user;
 
+    const navLinks = [
+        { href: "/dashboard", label: "Dashboard", authRequired: true },
+        { href: "#shop", label: "Shop", authRequired: false },
+        { href: "#how", label: "How It Works", authRequired: false },
+        { href: "#contact", label: "Contact", authRequired: false },
+        { href: "/products", label: "Manage", authRequired: true },
+        { href: "/selfie", label: "Selfie", authRequired: false },
+        { href: "/cart", label: "Cart", authRequired: true },
+    ];
+
     return (
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
             <div className="flex items-center gap-2">
@@ -23,33 +33,22 @@ export default function Navbar({ auth }: NavbarProps) {
             </div>
 
             <div className="hidden gap-3 rounded-full border-2 border-[#31513A] bg-white/70 px-3 py-2 font-bold md:flex items-center">
-                <a href="#shop" className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition">
-                    Shop
-                </a>
-                <a href="#how" className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition">
-                    How It Works
-                </a>
-                <a href="#contact" className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition">
-                    Contact
-                </a>
+                {navLinks
+                    .filter((link) => !link.authRequired || user)
+                    .map((link) => {
+                        const isInternal = link.href.startsWith("/");
+                        const className = "hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition";
 
-                <Link
-                    href="/products"
-                    className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition"
-                >
-                    Manage
-                </Link>
-
-                <Link
-                    href="/selfie"
-                    className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition"
-                >
-                    Selfie
-                </Link>
-
-                <Link href="/cart" className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition">
-                    Cart
-                </Link>
+                        return isInternal ? (
+                            <Link key={link.href} href={link.href} className={className}>
+                                {link.label}
+                            </Link>
+                        ) : (
+                            <a key={link.href} href={link.href} className={className}>
+                                {link.label}
+                            </a>
+                        );
+                    })}
             </div>
 
             {/* Mobile / Fallback Login button if user is logged out */}
