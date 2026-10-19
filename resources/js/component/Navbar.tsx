@@ -24,6 +24,7 @@ export default function Navbar({ auth }: NavbarProps) {
         { href: "/products", label: "Manage", authRequired: true },
         { href: "/selfie", label: "Selfie", authRequired: false },
         { href: "/cart", label: "Cart", authRequired: true },
+        { href: "/orders", label: "Orders", authRequired: true }
     ];
 
     // Global Click Sound Effect (Optimized for instant playback)

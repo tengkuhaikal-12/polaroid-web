@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cart;
+use App\Models\Order;
 use App\Models\Payment;
 use Bayarcash\Bayarcash;
 use Bayarcash\Exceptions\ValidationException;
@@ -44,19 +45,66 @@ class PaymentController extends Controller
             return back()->with('error', 'Your cart is empty.');
         }
 
-        // The total always comes from the server-side cart, never the browser.
-        $amount = number_format(
-            $cart->items->sum(fn ($item) => $item->quantity * $item->price) + 5,
-            2,
-            '.',
-            '',
+        // Totals always come from the server-side cart, never the browser.
+        $subtotal = $cart->items->sum(fn ($item) => $item->quantity * $item->price);
+        $total = $subtotal + 5;
+        $order = Order::create([
+            'customer_id' => $request->user()->id,
+            'subtotal' => $subtotal,
+            'total' => $total,
+            'status' => 'checkout',
+            'payment_type' => $request->input('payment_channel'),
+        ]);
+
+        // The order now owns this checkout. Further payment attempts happen
+        // from order history, so the active cart is ready for new items.
+        $cart->items()->delete();
+
+        return $this->createPaymentAttempt(
+            $order,
+            $cart,
+            $request->name,
+            $request->email,
+            $request->phone,
+            $request->input('payment_channel'),
         );
+    }
+
+    public function retry(Order $order, Request $request)
+    {
+        abort_unless($order->customer_id === $request->user()->id, 404);
+        abort_unless($order->status === 'checkout', 422);
+
+        $cart = $order->payments()->latest()->first()?->cart;
+
+        abort_unless($cart instanceof Cart, 422, 'This order cannot be resumed.');
+
+        return $this->createPaymentAttempt(
+            $order,
+            $cart,
+            $request->user()->name,
+            $request->user()->email,
+            $request->user()->phone ?? '0123456789',
+            $order->payment_type ?? '1',
+        );
+    }
+
+    private function createPaymentAttempt(
+        Order $order,
+        Cart $cart,
+        string $name,
+        string $email,
+        string $phone,
+        string $paymentChannel,
+    ) {
+        $amount = number_format((float) $order->total, 2, '.', '');
         $bayarcash = $this->getBayarcashInstance();
         // Bayarcash permits a maximum of 30 characters for an order number.
         $orderNo = 'ORD-'.strtoupper(Str::random(20));
 
         Payment::create([
             'cart_id' => $cart->id,
+            'order_id' => $order->id,
             'order_number' => $orderNo,
             'amount' => $amount,
         ]);
@@ -65,12 +113,12 @@ class PaymentController extends Controller
             'portal_key' => config('bayarcash.portal_key'),
             'order_number' => $orderNo,
             'amount' => $amount,
-            'payer_name' => $request->name,
-            'payer_email' => $request->email,
-            'payer_telephone_number' => $request->phone,
+            'payer_name' => $name,
+            'payer_email' => $email,
+            'payer_telephone_number' => $phone,
             'callback_url' => route('payment.callback'),
             'return_url' => route('payment.return'),
-            'payment_channel' => $request->input('payment_channel'),
+            'payment_channel' => $paymentChannel,
         ];
 
         // Generate checksum for enhanced security
@@ -182,6 +230,8 @@ class PaymentController extends Controller
                 'transaction_id' => $callbackData['payment_intent_id'] ?? null,
                 'callback_payload' => $callbackData,
             ]);
+
+            $payment->order?->update(['status' => 'paid']);
 
             $payment->cart->items()->delete();
         });

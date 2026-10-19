@@ -11,7 +11,7 @@ export default function Dashboard() {
         { title: "Selfie Camera", href: "/selfie", icon: Camera, color: "bg-[#FF9EAD]" },
         { title: "Upload Image", href: "/selfie", icon: Upload, color: "bg-[#FFF0A8]" },
         { title: "Cart", href: "/cart", icon: ShoppingCart, color: "bg-[#CDE8B5]" },
-        { title: "Orders", href: "/checkout", icon: Package, color: "bg-[#B5D8EB]" },
+        { title: "Orders", href: "/orders", icon: Package, color: "bg-[#B5D8EB]" },
         { title: "Polaroid Studio", href: "/selfie", icon: Sparkles, color: "bg-[#EBD8C3]" },
         { title: "Profile", href: "/profile", icon: User, color: "bg-[#FFC8DD]" },
     ];

@@ -5,13 +5,13 @@ import Navbar from '@/component/Navbar';
 
 interface Order {
     id: number;
-    user_id: number;
+    customer_id: number;
     subtotal: string | number;
     total: string | number;
-    billing_address_id: number;
-    shipping_address_id: number;
+    billing_address_id: number | null;
+    shipping_address_id: number | null;
     status: 'checkout' | 'paid' | 'dispatched' | 'delivered' | 'canceled' | 'failed' | 'expired';
-    payment_type: string;
+    payment_type: string | null;
     created_at: string;
     updated_at: string;
 }
@@ -157,7 +157,7 @@ export default function OrderHistory({ orders }: OrdersProps) {
                                         <div>
                                             <p className="text-xs font-black text-[#55725D]">ADDRESS REFERENCES</p>
                                             <p className="mt-1 text-xs font-semibold text-[#55725D]">
-                                                Billing ID: #{order.billing_address_id} | Shipping ID: #{order.shipping_address_id}
+                                                Billing ID: #{order.billing_address_id ?? '—'} | Shipping ID: #{order.shipping_address_id ?? '—'}
                                             </p>
                                         </div>
                                     </div>
@@ -173,12 +173,17 @@ export default function OrderHistory({ orders }: OrdersProps) {
                                             </div>
 
                                             <div className="flex items-center gap-3 w-full sm:w-auto">
-                                                <Link
-                                                    href={`/checkout/${order.id}`}
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        router.post(
+                                                            `/orders/${order.id}/checkout`,
+                                                        )
+                                                    }
                                                     className="flex-1 sm:flex-none text-center rounded-full border-2 border-[#31513A] bg-[#CDE8B5] px-5 py-2 text-sm font-black shadow-[3px_3px_0_#31513A] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none"
                                                 >
                                                     Pay Now 🍓
-                                                </Link>
+                                                </button>
 
                                                 <button
                                                     type="button"

@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Models\Product;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,6 +29,11 @@ Route::inertia('/checkout', 'checkout/checkout')->name('checkout');
 Route::inertia('/selfie', 'camera/CaptureSelfie')->name('selfie');
 
 Route::inertia('/dashboard', 'dashboard/Dashboard')->name('dashboard')->middleware(['auth', 'verified']);
+Route::middleware('auth')->group(function () {
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::patch('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::post('/orders/{order}/checkout', [PaymentController::class, 'retry'])->name('orders.retry-payment');
+});
 
 
 /*
@@ -78,6 +84,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::post('/checkout', [PaymentController::class, 'checkout'])->name('payment.checkout');
+Route::post('/checkout', [PaymentController::class, 'checkout'])->middleware('auth')->name('payment.checkout');
 Route::get('/payment/return', [PaymentController::class, 'returnUrl'])->name('payment.return');
 Route::post('/payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');
