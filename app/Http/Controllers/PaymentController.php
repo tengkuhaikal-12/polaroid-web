@@ -38,7 +38,7 @@ class PaymentController extends Controller
             'payment_channel' => 'required|string',
         ]);
 
-        $cart = Cart::with('items')->findOrFail($request->integer('cart_id'));
+        $cart = Cart::with('items.product')->findOrFail($request->integer('cart_id'));
         $this->ensureCartBelongsToRequester($request, $cart);
 
         if ($cart->items->isEmpty()) {
@@ -55,6 +55,13 @@ class PaymentController extends Controller
             'status' => 'checkout',
             'payment_type' => $request->input('payment_channel'),
         ]);
+
+        $order->items()->createMany($cart->items->map(fn ($item) => [
+            'product_id' => $item->product_id,
+            'name' => $item->product?->name ?? 'Product',
+            'quantity' => $item->quantity,
+            'price' => $item->price,
+        ])->all());
 
         // The order now owns this checkout. Further payment attempts happen
         // from order history, so the active cart is ready for new items.

@@ -162,6 +162,15 @@ export default function OrderHistory({ orders }: OrdersProps) {
                                         </div>
                                     </div>
 
+                                    {order.status === 'paid' && (
+                                        <a
+                                            href={`/orders/${order.id}/receipt`}
+                                            className="inline-block rounded-full border-2 border-[#31513A] bg-[#FFF0A8] px-5 py-2 text-sm font-black shadow-[3px_3px_0_#31513A]"
+                                        >
+                                            Download Receipt
+                                        </a>
+                                    )}
+
                                     {/* Pending Payment Timer & Actions */}
                                     {order.status === 'checkout' && (
                                         <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border-2 border-[#31513A] bg-[#FFF8EA] p-4">
