@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from '@inertiajs/react';
 import { LogIn, LogOut, X } from 'lucide-react';
 
@@ -23,6 +23,31 @@ export default function Navbar({ auth }: NavbarProps) {
         { href: "/selfie", label: "Selfie", authRequired: false },
         { href: "/cart", label: "Cart", authRequired: true },
     ];
+
+    // Global Click Sound Effect (Optimized for instant playback)
+    useEffect(() => {
+        // Pre-load the audio object once so it's ready instantly
+        const clickAudio = new Audio('/audio/click.wav');
+        clickAudio.volume = 0.3;
+
+        const handleGlobalClick = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+
+            if (target.closest('button') || target.closest('a') || target.closest('[role="button"]')) {
+                // Reset audio to start so rapid clicks play immediately without waiting
+                clickAudio.currentTime = 0;
+                clickAudio.play().catch((err) => {
+                    console.log("Audio play blocked:", err);
+                });
+            }
+        };
+
+        document.addEventListener('click', handleGlobalClick);
+
+        return () => {
+            document.removeEventListener('click', handleGlobalClick);
+        };
+    }, []);
 
     return (
         <>

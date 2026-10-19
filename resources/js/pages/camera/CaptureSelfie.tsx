@@ -1,6 +1,6 @@
-import React, { useRef, useState } from 'react';
-import { Head, Link } from '@inertiajs/react';
-import { useForm } from '@inertiajs/react';
+import React, { useRef, useState, useEffect } from 'react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
+
 import { Camera, RotateCcw, Check, ArrowLeft } from 'lucide-react';
 
 interface CaptureSelfieProps {
@@ -43,16 +43,42 @@ export default function CaptureSelfie({ isHome }: CaptureSelfieProps) {
     };
 
     const stopCamera = () => {
-        if (videoRef.current && videoRef.current.srcObject) {
-            const stream = videoRef.current.srcObject as MediaStream;
-            stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
-            videoRef.current.srcObject = null;
-            setIsStreaming(false);
+        const video = videoRef.current;
+
+        if (video?.srcObject) {
+            const stream = video.srcObject as MediaStream;
+
+            stream.getTracks().forEach((track) => track.stop());
+            video.srcObject = null;
         }
+
+        setIsStreaming(false);
     };
+
+    useEffect(() => {
+        // Stop camera when navigating to another Inertia route
+        const removeListener = router.on('navigate', () => {
+            stopCamera();
+        });
+
+        // Stop camera when component unmounts
+        return () => {
+            removeListener();
+            stopCamera();
+        };
+    }, []);
 
     const capturePhoto = () => {
         if (!videoRef.current || !canvasRef.current) return;
+
+        // Play the shutter sound effect 📸
+        const shutter = new Audio('/audio/camera-shutter.wav');
+        shutter.volume = 0.5; // Optional: Adjust volume (0.0 to 1.0)
+        shutter.play().catch((err) => {
+            // Browsers sometimes block audio if the user hasn't interacted with the page yet, 
+            // though clicking the button usually satisfies this.
+            console.log("Audio playback prevented:", err);
+        });
 
         const width = videoRef.current.videoWidth || 640;
         const height = videoRef.current.videoHeight || 480;
@@ -71,7 +97,7 @@ export default function CaptureSelfie({ isHome }: CaptureSelfieProps) {
         setCapturedImage(dataUrl);
         setData('image', dataUrl);
 
-        stopCamera();
+        // stopCamera();
     };
 
     const retakePhoto = () => {
