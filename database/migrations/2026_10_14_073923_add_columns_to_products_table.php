@@ -12,11 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-        $table->string('name');
-        $table->decimal('price', 8, 2);
-        $table->integer('prints');
-        $table->string('image')->nullable();
-        $table->string('color')->default('bg-[#FFF0A8]');
         });
     }
 
