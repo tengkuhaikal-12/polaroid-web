@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PhotoEditorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -87,3 +88,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
 Route::post('/checkout', [PaymentController::class, 'checkout'])->middleware('auth')->name('payment.checkout');
 Route::get('/payment/return', [PaymentController::class, 'returnUrl'])->name('payment.return');
 Route::post('/payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');
+
+
+Route::get('/photo-studio', [
+    PhotoEditorController::class,
+    'index',
+])->name('photo-studio');

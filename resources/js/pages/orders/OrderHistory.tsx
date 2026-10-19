@@ -1,6 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
-import { Clock, CheckCircle2, XCircle, Truck, PackageCheck, AlertCircle } from 'lucide-react';
+import { Clock, CheckCircle2, XCircle, Truck, PackageCheck, AlertCircle, ShoppingCart } from 'lucide-react';
 import Navbar from '@/component/Navbar';
 
 interface Order {
@@ -80,15 +80,13 @@ export default function OrderHistory({ orders }: OrdersProps) {
                 <main className="mx-auto max-w-5xl px-6 py-12">
                     {/* Header */}
                     <div className="mb-8">
-                        <div className="mb-3 inline-block rounded-full border-2 border-[#31513A] bg-[#FFF0A8] px-4 py-1 text-sm font-black shadow-[3px_3px_0_#31513A]">
+                        <div className="mb-3 inline-block rounded-full border-2 border-[#31513A] bg-[#FFF0A8] px-4 py-1 text-sm font-black shadow-[3px_3px_0_#31513A] lowercase">
                             📦 YOUR PURCHASES
                         </div>
-                        <h1 className="text-4xl font-black tracking-tight md:text-6xl">
+                        <h1 className="text-4xl font-black tracking-tight md:text-6xl lowercase">
                             ORDER <span className="text-[#F26B82]">HISTORY</span> ♡
                         </h1>
-                        <p className="mt-2 font-semibold text-[#55725D]">
-                            Track your cute prints, check statuses, and complete pending payments.
-                        </p>
+
                     </div>
 
                     {/* Tabs */}
@@ -97,7 +95,7 @@ export default function OrderHistory({ orders }: OrdersProps) {
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
-                                className={`rounded-full border-2 border-[#31513A] px-5 py-2 text-sm font-black uppercase transition shadow-[3px_3px_0_#31513A] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none ${activeTab === tab ? 'bg-[#F26B82] text-white' : 'bg-white text-[#31513A]'
+                                className={`rounded-full border-2 border-[#31513A] px-5 py-2 text-sm transition capitalize shadow-[3px_3px_0_#31513A] hover:translate-x-0.5 font-black hover:translate-y-0.5 hover:shadow-none ${activeTab === tab ? 'bg-[#F26B82] text-white' : 'bg-white text-[#31513A]'
                                     }`}
                             >
                                 {tab}
@@ -108,16 +106,16 @@ export default function OrderHistory({ orders }: OrdersProps) {
                     {/* Orders List */}
                     {filteredOrders.length === 0 ? (
                         <div className="rounded-[2rem] border-4 border-[#31513A] bg-white p-12 text-center shadow-[7px_7px_0_#31513A]">
-                            <div className="text-6xl mb-4">🛒</div>
+                            <div className="text-6xl mb-4 justify-center flex"><ShoppingCart className='w-15 h-15'/></div>
                             <h3 className="text-2xl font-black">No orders found here!</h3>
                             <p className="mt-2 font-semibold text-[#55725D]">
                                 Time to turn some camera roll memories into physical prints.
                             </p>
                             <Link
                                 href="/#shop"
-                                className="mt-6 inline-block rounded-full border-2 border-[#31513A] bg-[#CDE8B5] px-6 py-3 font-black shadow-[4px_4px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+                                className="mt-6 inline-block rounded-full border-2 border-[#31513A] bg-[#CDE8B5] px-6 py-3 first-letter:capitalize shadow-[4px_4px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
                             >
-                                Shop Prints 🍓
+                                shop prints 🍓
                             </Link>
                         </div>
                     ) : (
