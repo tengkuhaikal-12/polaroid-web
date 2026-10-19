@@ -14,6 +14,8 @@ interface NavbarProps {
 export default function Navbar({ auth }: NavbarProps) {
     const user = auth?.user;
 
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
     const navLinks = [
         { href: "/dashboard", label: "Dashboard", authRequired: true },
         { href: "#shop", label: "Shop", authRequired: false },
