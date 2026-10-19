@@ -13,7 +13,16 @@ interface NavbarProps {
 
 export default function Navbar({ auth }: NavbarProps) {
     const user = auth?.user;
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    const navLinks = [
+        { href: "/dashboard", label: "Dashboard", authRequired: true },
+        { href: "#shop", label: "Shop", authRequired: false },
+        { href: "#how", label: "How It Works", authRequired: false },
+        { href: "#contact", label: "Contact", authRequired: false },
+        { href: "/products", label: "Manage", authRequired: true },
+        { href: "/selfie", label: "Selfie", authRequired: false },
+        { href: "/cart", label: "Cart", authRequired: true },
+    ];
 
     return (
         <>
@@ -25,33 +34,24 @@ export default function Navbar({ auth }: NavbarProps) {
                     </Link>
                 </div>
 
-                {/* Desktop Navigation Links */}
-                <div className="hidden gap-3 rounded-full border-2 border-[#31513A] bg-white/70 px-3 py-2 font-bold md:flex items-center shadow-[3px_3px_0_#31513A]">
-                    <a href="#shop" className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition">
-                        Shop
-                    </a>
-                    <a href="#how" className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition">
-                        How It Works
-                    </a>
-                    <a href="#contact" className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition">
-                        Contact
-                    </a>
-                    <Link
-                        href="/products"
-                        className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition"
-                    >
-                        Manage
-                    </Link>
-                    <Link
-                        href="/selfie"
-                        className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition"
-                    >
-                        Selfie
-                    </Link>
-                    <Link href="/cart" className="hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition">
-                        Cart
-                    </Link>
-                </div>
+            <div className="hidden gap-3 rounded-full border-2 border-[#31513A] bg-white/70 px-3 py-2 font-bold md:flex items-center">
+                {navLinks
+                    .filter((link) => !link.authRequired || user)
+                    .map((link) => {
+                        const isInternal = link.href.startsWith("/");
+                        const className = "hover:text-[#F26B82] hover:bg-[#CDE8B5] px-3 py-1 rounded-full transition";
+
+                        return isInternal ? (
+                            <Link key={link.href} href={link.href} className={className}>
+                                {link.label}
+                            </Link>
+                        ) : (
+                            <a key={link.href} href={link.href} className={className}>
+                                {link.label}
+                            </a>
+                        );
+                    })}
+            </div>
 
                 {/* Desktop Auth Button */}
                 <div className="hidden md:flex items-center">

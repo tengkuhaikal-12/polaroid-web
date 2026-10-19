@@ -1,6 +1,7 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { ArrowRight, Plus } from 'lucide-react';
 import Navbar from '@/component/Navbar';
+import CaptureSelfie from './camera/CaptureSelfie';
 
 interface Product {
     id: number;
@@ -102,6 +103,8 @@ export default function Welcome({ products }: WelcomeProps) {
                         ALBUMS • MADE WITH LOVE ♡
                     </div>
                 </div>
+
+                <CaptureSelfie isHome={true} />
 
                 {/* PRODUCTS */}
                 <section id="shop" className="mx-auto max-w-6xl px-6 py-10">

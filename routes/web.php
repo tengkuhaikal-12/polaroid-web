@@ -69,4 +69,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::match(['post', 'put'], '/products/{product}', [ProductController::class, 'update'])->name('product.update');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('product.destroy');
+
+
+    Route::inertia('/cart', 'cart/cart')->name('cart');
+    Route::inertia('/checkout', 'checkout/checkout')->name('checkout');
 });
