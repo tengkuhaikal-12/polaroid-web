@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class CartItem extends Model
 {
@@ -30,5 +31,16 @@ class CartItem extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    /**
+     * Get the Studio collection associated with this cart item.
+     */
+    public function studioCollection(): HasOne
+    {
+        return $this->hasOne(
+            StudioCollection::class,
+            'cart_item_id'
+        );
     }
 }

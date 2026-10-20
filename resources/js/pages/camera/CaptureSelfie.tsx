@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Head, Link, useForm, router } from '@inertiajs/react';
-
-import { Camera, RotateCcw, Check, ArrowLeft } from 'lucide-react';
+import { Camera, RotateCcw, Check, ArrowLeft, Wand2 } from 'lucide-react';
 
 interface CaptureSelfieProps {
     isHome: boolean;
@@ -23,7 +22,7 @@ export default function CaptureSelfie({ isHome }: CaptureSelfieProps) {
         '16:9': 'h-[280px] md:h-[340px]',  // Widescreen
     };
 
-    const { data, setData, post, processing } = useForm({
+    const { data, setData, processing } = useForm({
         image: '' as string | null,
     });
 
@@ -44,14 +43,11 @@ export default function CaptureSelfie({ isHome }: CaptureSelfieProps) {
 
     const stopCamera = () => {
         const video = videoRef.current;
-
         if (video?.srcObject) {
             const stream = video.srcObject as MediaStream;
-
             stream.getTracks().forEach((track) => track.stop());
             video.srcObject = null;
         }
-
         setIsStreaming(false);
     };
 
@@ -73,10 +69,8 @@ export default function CaptureSelfie({ isHome }: CaptureSelfieProps) {
 
         // Play the shutter sound effect 📸
         const shutter = new Audio('/audio/camera-shutter.wav');
-        shutter.volume = 0.5; // Optional: Adjust volume (0.0 to 1.0)
+        shutter.volume = 0.5;
         shutter.play().catch((err) => {
-            // Browsers sometimes block audio if the user hasn't interacted with the page yet, 
-            // though clicking the button usually satisfies this.
             console.log("Audio playback prevented:", err);
         });
 
@@ -96,8 +90,6 @@ export default function CaptureSelfie({ isHome }: CaptureSelfieProps) {
         const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
         setCapturedImage(dataUrl);
         setData('image', dataUrl);
-
-        // stopCamera();
     };
 
     const retakePhoto = () => {
@@ -106,13 +98,16 @@ export default function CaptureSelfie({ isHome }: CaptureSelfieProps) {
         startCamera();
     };
 
-    const submit = (e: React.FormEvent) => {
+    // Proceed to custom template canvas editor page
+    const handleUsePhoto = (e: React.FormEvent) => {
         e.preventDefault();
-        post('/selfie', {
-            onSuccess: () => {
-                stopCamera();
-            }
-        });
+        if (!capturedImage) return;
+
+        // Save image temporarily for the template editor
+        sessionStorage.setItem('captured_selfie', capturedImage);
+
+        stopCamera();
+        router.visit('/studio');
     };
 
     return (
@@ -120,8 +115,7 @@ export default function CaptureSelfie({ isHome }: CaptureSelfieProps) {
             <Head title="Capture Your Selfie" />
 
             <div className="min-h-screen bg-[#FFF8EA] text-[#31513A]">
-
-                <main className="mx-auto max-w-xl w-full p-6 flex-1 flex flex-col items-center justify-center">
+                <main className="mx-auto max-w-xl w-full p-6 flex-1 flex flex-col items-center justify-center min-h-screen">
 
                     <div className="relative w-full flex items-center justify-center mb-4">
                         {!isHome && (
@@ -134,7 +128,7 @@ export default function CaptureSelfie({ isHome }: CaptureSelfieProps) {
                         )}
                         <div className="text-center">
                             <h3 className="mb-3 inline-block rounded-full border-2 border-[#31513A] bg-[#FFF0A8] px-5 py-1 font-black text-sm shadow-[3px_3px_0_#31513A]">
-                                ✨ snap your moment✨
+                                ✨ snap your moment ✨
                             </h3>
                             <h1 className="text-4xl font-black tracking-tight md:text-5xl">
                                 take a <span className="text-[#F26B82]">selfie</span>
@@ -146,7 +140,6 @@ export default function CaptureSelfie({ isHome }: CaptureSelfieProps) {
 
                         {!capturedImage ? (
                             <div className="flex flex-col items-center w-full">
-
                                 {/* Ratio Selector Buttons */}
                                 <div className="flex gap-2 mb-4 w-full justify-center">
                                     {['1:1', '4:3', '16:9'].map((ratio) => (
@@ -155,8 +148,8 @@ export default function CaptureSelfie({ isHome }: CaptureSelfieProps) {
                                             type="button"
                                             onClick={() => setAspectRatio(ratio)}
                                             className={`px-4 py-1.5 rounded-full border-2 border-[#31513A] font-black text-sm transition ${aspectRatio === ratio
-                                                ? 'bg-[#F26B82] text-white shadow-[2px_2px_0_#31513A] translate-x-0.5 translate-y-0.5'
-                                                : 'bg-[#FFF0A8] text-[#31513A] shadow-[3px_3px_0_#31513A] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none'
+                                                    ? 'bg-[#F26B82] text-white shadow-[2px_2px_0_#31513A] translate-x-0.5 translate-y-0.5'
+                                                    : 'bg-[#FFF0A8] text-[#31513A] shadow-[3px_3px_0_#31513A] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none'
                                                 }`}
                                         >
                                             {ratio}
@@ -199,8 +192,7 @@ export default function CaptureSelfie({ isHome }: CaptureSelfieProps) {
                                 )}
                             </div>
                         ) : (
-                            <form onSubmit={submit} className="flex flex-col items-center space-y-5 w-full">
-                                {/* Captured Preview Container with Matching Dynamic Height */}
+                            <form onSubmit={handleUsePhoto} className="flex flex-col items-center space-y-5 w-full">
                                 <div className={`w-full ${heightClasses[aspectRatio]} rounded-[1.5rem] border-2 border-[#31513A] overflow-hidden bg-black p-2 shadow-sm transition-all duration-300`}>
                                     <img
                                         src={capturedImage}
@@ -209,7 +201,7 @@ export default function CaptureSelfie({ isHome }: CaptureSelfieProps) {
                                     />
                                 </div>
 
-                                <p className="font-black text-center text-lg">Looking cute! Ready to print? ♡</p>
+                                <p className="font-black text-center text-lg">Looking cute! Choose a frame layout ♡</p>
 
                                 <div className="flex gap-4 w-full">
                                     <button
@@ -225,7 +217,7 @@ export default function CaptureSelfie({ isHome }: CaptureSelfieProps) {
                                         disabled={processing}
                                         className="flex-1 rounded-full border-2 border-[#31513A] bg-[#CDE8B5] py-3 font-black shadow-[3px_3px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none flex items-center justify-center gap-2 disabled:opacity-50"
                                     >
-                                        <Check className="w-5 h-5" /> Use Photo
+                                        <Wand2 className="w-5 h-5" /> Select Templates
                                     </button>
                                 </div>
                             </form>
