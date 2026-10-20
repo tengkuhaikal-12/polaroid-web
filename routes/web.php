@@ -102,13 +102,10 @@ Route::middleware('auth')->group(function () {
 */
 
 Route::middleware('auth')->group(function () {
-    Route::inertia('/checkout', 'checkout/checkout')
-        ->name('checkout');
-
-    Route::post('/checkout', [
-        PaymentController::class,
-        'checkout',
-    ])->name('payment.checkout');
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::patch('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::get('/orders/{order}/receipt', [OrderController::class, 'receipt'])->name('orders.receipt');
+    Route::post('/orders/{order}/checkout', [PaymentController::class, 'retry'])->name('orders.retry-payment');
 });
 
 

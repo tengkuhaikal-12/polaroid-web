@@ -49,11 +49,8 @@ class Order extends Model
         return $this->hasMany(Payment::class);
     }
 
-    public function studioCollections(): HasMany
+    public function items(): HasMany
     {
-        return $this->hasMany(
-            StudioCollection::class,
-            'order_id'
-        );
+        return $this->hasMany(OrderItem::class);
     }
 }

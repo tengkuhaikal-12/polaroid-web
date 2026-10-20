@@ -317,15 +317,25 @@ export default function OrderHistory({ orders }: OrdersProps) {
                                                 </p>
                                             </div>
                                         </div>
+                                    </div>
 
-                                        {/* Uploaded Studio photos */}
-                                        <div className="border-t-2 border-[#31513A] py-6">
-                                            <div className="mb-5 flex items-center gap-2">
-                                                <ImageIcon className="h-6 w-6" />
+                                    {order.status === 'paid' && (
+                                        <a
+                                            href={`/orders/${order.id}/receipt`}
+                                            className="inline-block rounded-full border-2 border-[#31513A] bg-[#FFF0A8] px-5 py-2 text-sm font-black shadow-[3px_3px_0_#31513A]"
+                                        >
+                                            Download Receipt
+                                        </a>
+                                    )}
 
-                                                <h4 className="text-xl font-black">
-                                                    YOUR UPLOADED PHOTOS 🍓
-                                                </h4>
+                                    {/* Pending Payment Timer & Actions */}
+                                    {order.status === 'checkout' && (
+                                        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border-2 border-[#31513A] bg-[#FFF8EA] p-4">
+                                            <div className="flex items-center gap-2">
+                                                <AlertCircle className="h-5 w-5 text-[#F26B82]" />
+                                                <span className="text-sm font-bold">
+                                                    Complete payment within 30 minutes to secure your order.
+                                                </span>
                                             </div>
 
                                             {hasPhotos ? (
