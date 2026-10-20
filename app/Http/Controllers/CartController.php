@@ -10,6 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\StudioCollection;
+use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class CartController extends Controller
 {
@@ -132,4 +135,106 @@ class CartController extends Controller
             404,
         );
     }
+
+    /**
+     * Add a nine-photo Studio collection to the cart.
+     */
+
+    /**
+     * Add a nine-photo Studio collection to the cart.
+     */
+    public function addStudioItem(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'polaroids' => ['required', 'array', 'size:9'],
+            'polaroids.*.photo' => [
+                'required',
+                'file',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:10240',
+            ],
+        ]);
+
+        // Your current database contains product ID 1, named "Haikal".
+        // Confirm this is the intended product before charging its price.
+        $product = Product::find(1);
+
+        if (!$product) {
+            return back()->withErrors([
+                'polaroids' => 'The Polaroid printing product was not found.',
+            ]);
+        }
+
+        $storedPaths = [];
+
+        try {
+            // Store image files outside the public directory.
+            foreach ($validated['polaroids'] as $polaroid) {
+                $path = $polaroid['photo']->store(
+                    "studio/{$request->user()->id}",
+                    'local'
+                );
+
+                if (!$path) {
+                    throw new \RuntimeException(
+                        'Failed to store a Studio photo.'
+                    );
+                }
+
+                $storedPaths[] = $path;
+            }
+
+            DB::transaction(function () use ($request, $product, $storedPaths): void {
+                $cart = $this->currentCart($request);
+
+                // Create a persistent collection.
+                $collection = StudioCollection::create([
+                    'user_id' => $request->user()->id,
+                    'status' => 'in_cart',
+                ]);
+
+                // Save the nine photos in their original order.
+                foreach ($storedPaths as $index => $path) {
+                    $collection->photos()->create([
+                        'position' => $index + 1,
+                        'image_path' => $path,
+                    ]);
+                }
+
+                // Keep this collection as one separate cart item.
+                $cartItem = $cart->items()->create([
+                    'product_id' => $product->id,
+                    'quantity' => 1,
+                    'price' => $product->price,
+                    'options' => [
+                        'type' => 'studio_polaroid_collection',
+                        'studio_collection_id' => $collection->id,
+                    ],
+                ]);
+
+                $collection->update([
+                    'cart_item_id' => $cartItem->id,
+                ]);
+            });
+        } catch (Throwable $exception) {
+            // Uploaded files are not rolled back by a DB transaction.
+            foreach ($storedPaths as $path) {
+                Storage::disk('local')->delete($path);
+            }
+
+            report($exception);
+
+            return back()->withErrors([
+                'polaroids' =>
+                    'Unable to save your Studio collection. Please try again.',
+            ]);
+        }
+
+        return to_route('cart')->with(
+            'success',
+            'Your nine Polaroids have been added to your cart.'
+        );
+    }
+
 }

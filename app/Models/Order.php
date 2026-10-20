@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Models\StudioCollection;
+
 class Order extends Model
 {
     use SoftDeletes;
@@ -37,5 +39,10 @@ class Order extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function studioCollections(): HasMany
+    {
+        return $this->hasMany(StudioCollection::class);
     }
 }

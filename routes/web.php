@@ -90,7 +90,16 @@ Route::get('/payment/return', [PaymentController::class, 'returnUrl'])->name('pa
 Route::post('/payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');
 
 
+Route::post('/cart/studio', [CartController::class, 'addStudioItem'])
+    ->middleware('auth')
+    ->name('cart.studio.add');
+
+
 Route::get('/photo-studio', [
     PhotoEditorController::class,
     'index',
 ])->name('photo-studio');
+
+Route::get('/studio', function () {
+    return Inertia::render('studio/Studio');
+})->name('studio');
