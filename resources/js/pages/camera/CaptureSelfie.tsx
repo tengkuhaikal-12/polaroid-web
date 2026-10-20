@@ -107,7 +107,7 @@ export default function CaptureSelfie({ isHome }: CaptureSelfieProps) {
         sessionStorage.setItem('captured_selfie', capturedImage);
 
         stopCamera();
-        router.visit('/photo-studio');
+        router.visit('/studio');
     };
 
     return (

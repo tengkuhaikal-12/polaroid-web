@@ -12,12 +12,15 @@ class StudioPhoto extends Model
         'position',
         'image_path',
         'placement',
+        'is_selected',
     ];
 
     protected function casts(): array
     {
         return [
+            'position' => 'integer',
             'placement' => 'array',
+            'is_selected' => 'boolean',
         ];
     }
 

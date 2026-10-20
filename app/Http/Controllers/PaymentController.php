@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\StudioCollection;
 use Bayarcash\Bayarcash;
-use Bayarcash\Exceptions\ValidationException;
+use Bayarcash\Exceptions\ValidationException as BayarcashValidationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -17,7 +18,9 @@ class PaymentController extends Controller
 {
     private function getBayarcashInstance(): Bayarcash
     {
-        $bayarcash = new Bayarcash(config('bayarcash.api_token'));
+        $bayarcash = new Bayarcash(
+            config('bayarcash.api_token')
+        );
 
         if (config('bayarcash.sandbox')) {
             $bayarcash->useSandbox();
@@ -29,58 +32,69 @@ class PaymentController extends Controller
     }
 
     /**
-     * Create an order and initiate payment.
+     * Create an order and initiate payment using the account name and email.
      */
     public function checkout(Request $request)
     {
-        $request->validate([
-            'cart_id' => ['required', 'integer', 'exists:carts,id'],
-            'name' => ['required', 'string'],
-            'email' => ['required', 'email'],
-            'phone' => ['required', 'string'],
-            'payment_channel' => ['required', 'string'],
+        $validated = $request->validate([
+            'cart_id' => [
+                'required',
+                'integer',
+                'exists:carts,id',
+            ],
+            'payment_channel' => [
+                'required',
+                'string',
+            ],
         ]);
 
+        $user = $request->user();
+
+        $name = $user->name;
+        $email = $user->email;
+
+        if (blank($name) || blank($email)) {
+            return back()->withErrors([
+                'account' => 'Please ensure your account has a name and email address.',
+            ]);
+        }
+
         $cart = Cart::with('items')->findOrFail(
-            $request->integer('cart_id')
+            $validated['cart_id']
         );
 
-        $this->ensureCartBelongsToRequester($request, $cart);
+        $this->ensureCartBelongsToRequester(
+            $request,
+            $cart
+        );
 
         if ($cart->items->isEmpty()) {
-            return back()->with('error', 'Your cart is empty.');
+            return back()->with(
+                'error',
+                'Your cart is empty.'
+            );
         }
 
         $subtotal = $cart->items->sum(
-            fn ($item) => $item->quantity * $item->price
+            fn($item) =>
+                (float) $item->quantity * (float) $item->price
         );
 
-        $total = $subtotal + 5;
+        $total = $subtotal + 5.00;
 
-        /*
-         * Create the order and associate Studio collections
-         * in one database transaction.
-         */
-        $order = DB::transaction(function () use (
-            $request,
-            $cart,
-            $subtotal,
-            $total
-        ) {
+        $order = DB::transaction(function () use ($request, $cart, $subtotal, $total, $validated) {
             $order = Order::create([
                 'customer_id' => $request->user()->id,
                 'subtotal' => $subtotal,
                 'total' => $total,
                 'status' => 'checkout',
-                'payment_type' => $request->input('payment_channel'),
+                'payment_type' => $validated['payment_channel'],
             ]);
 
-            $cartItemIds = $cart->items->pluck('id')->all();
+            $cartItemIds = $cart->items
+                ->pluck('id')
+                ->all();
 
-            /*
-             * First match collections through cart_item_id.
-             * Also support collections identified in item options.
-             */
             $optionCollectionIds = $cart->items
                 ->filter(function ($item) {
                     $options = $item->options ?? [];
@@ -100,16 +114,16 @@ class PaymentController extends Controller
             $collections = StudioCollection::query()
                 ->where('user_id', $request->user()->id)
                 ->whereNull('order_id')
-                ->where(function ($query) use (
-                    $cartItemIds,
-                    $optionCollectionIds
-                ) {
-                    if (! empty($cartItemIds)) {
-                        $query->whereIn('cart_item_id', $cartItemIds);
+                ->where(function ($query) use ($cartItemIds, $optionCollectionIds) {
+                    if (!empty($cartItemIds)) {
+                        $query->whereIn(
+                            'cart_item_id',
+                            $cartItemIds
+                        );
                     }
 
-                    if (! empty($optionCollectionIds)) {
-                        if (! empty($cartItemIds)) {
+                    if (!empty($optionCollectionIds)) {
+                        if (!empty($cartItemIds)) {
                             $query->orWhereIn(
                                 'id',
                                 $optionCollectionIds
@@ -135,35 +149,38 @@ class PaymentController extends Controller
             return $order;
         });
 
-        /*
-         * Preserve the Studio collections in the database.
-         * Only remove the cart items after associating them.
-         */
-        $cart->items()->delete();
-
         return $this->createPaymentAttempt(
             $order,
             $cart,
-            $request->name,
-            $request->email,
-            $request->phone,
-            $request->input('payment_channel'),
+            $name,
+            $email,
+            $validated['payment_channel'],
         );
     }
 
     /**
-     * Retry payment for an existing order.
+     * Retry payment using the authenticated user's name and email.
      */
-    public function retry(Order $order, Request $request)
-    {
+    public function retry(
+        Order $order,
+        Request $request
+    ) {
+        $user = $request->user();
+
         abort_unless(
-            $order->customer_id === $request->user()->id,
+            (int) $order->customer_id === (int) $user->id,
             404
         );
 
-        abort_unless($order->status === 'checkout', 422);
+        abort_unless(
+            $order->status === 'checkout',
+            422
+        );
 
-        $cart = $order->payments()->latest()->first()?->cart;
+        $cart = $order->payments()
+            ->latest()
+            ->first()
+                ?->cart;
 
         abort_unless(
             $cart instanceof Cart,
@@ -171,12 +188,16 @@ class PaymentController extends Controller
             'This order cannot be resumed.'
         );
 
+        $this->ensureCartBelongsToRequester(
+            $request,
+            $cart
+        );
+
         return $this->createPaymentAttempt(
             $order,
             $cart,
-            $request->user()->name,
-            $request->user()->email,
-            $request->user()->phone ?? '0123456789',
+            $user->name,
+            $user->email,
             $order->payment_type ?? '1',
         );
     }
@@ -189,7 +210,6 @@ class PaymentController extends Controller
         Cart $cart,
         string $name,
         string $email,
-        string $phone,
         string $paymentChannel,
     ) {
         $amount = number_format(
@@ -201,7 +221,9 @@ class PaymentController extends Controller
 
         $bayarcash = $this->getBayarcashInstance();
 
-        $orderNo = 'ORD-' . strtoupper(Str::random(20));
+        $orderNo = 'ORD-' . strtoupper(
+            Str::random(20)
+        );
 
         Payment::create([
             'cart_id' => $cart->id,
@@ -216,7 +238,6 @@ class PaymentController extends Controller
             'amount' => $amount,
             'payer_name' => $name,
             'payer_email' => $email,
-            'payer_telephone_number' => $phone,
             'callback_url' => route('payment.callback'),
             'return_url' => route('payment.return'),
             'payment_channel' => $paymentChannel,
@@ -234,9 +255,11 @@ class PaymentController extends Controller
                 $data,
                 (string) Str::uuid()
             );
-        } catch (ValidationException $exception) {
+        } catch (BayarcashValidationException $exception) {
             Payment::where('order_number', $orderNo)
-                ->update(['status' => 'failed']);
+                ->update([
+                    'status' => 'failed',
+                ]);
 
             report($exception);
 
@@ -247,11 +270,15 @@ class PaymentController extends Controller
         }
 
         if ($response && isset($response->url)) {
-            return Inertia::location($response->url);
+            return Inertia::location(
+                $response->url
+            );
         }
 
         Payment::where('order_number', $orderNo)
-            ->update(['status' => 'failed']);
+            ->update([
+                'status' => 'failed',
+            ]);
 
         return back()->with(
             'error',
@@ -272,7 +299,7 @@ class PaymentController extends Controller
             config('bayarcash.secret_key')
         );
 
-        if (! $isValid) {
+        if (!$isValid) {
             return Inertia::render('payment/Status', [
                 'status' => 'failed',
                 'message' => 'Invalid payment response signature.',
@@ -293,7 +320,9 @@ class PaymentController extends Controller
         return Inertia::render('payment/Status', [
             'status' => $status,
             'order_number' => $request->input('order_number'),
-            'transaction_id' => $request->input('payment_intent_id'),
+            'transaction_id' => $request->input(
+                'payment_intent_id'
+            ),
         ]);
     }
 
@@ -310,7 +339,7 @@ class PaymentController extends Controller
             config('bayarcash.secret_key')
         );
 
-        if (! $isValid) {
+        if (!$isValid) {
             return response()->json([
                 'status' => 'invalid signature',
             ], 400);
@@ -338,36 +367,33 @@ class PaymentController extends Controller
         Request $request,
         Cart $cart
     ): void {
-        $isOwner = $request->user()
-            ? $cart->user_id === $request->user()->id
+        $user = $request->user();
+
+        $isOwner = $user
+            ? (int) $cart->user_id === (int) $user->id
             : $cart->id === $request->session()->get('cart_id');
 
         abort_unless($isOwner, 403);
     }
 
     /**
-     * Mark the payment, order and Studio collections as paid.
-     *
-     * PDF generation will be handled separately after confirmation.
+     * Mark payment, order and Studio collections as paid.
      */
     private function completePayment(
         ?string $orderNumber,
         array $callbackData
     ): void {
-        if (! $orderNumber) {
+        if (!$orderNumber) {
             return;
         }
 
-        DB::transaction(function () use (
-            $orderNumber,
-            $callbackData
-        ): void {
+        DB::transaction(function () use ($orderNumber, $callbackData): void {
             $payment = Payment::query()
                 ->where('order_number', $orderNumber)
                 ->lockForUpdate()
                 ->first();
 
-            if (! $payment) {
+            if (!$payment || $payment->status === 'paid') {
                 return;
             }
 
@@ -390,6 +416,7 @@ class PaymentController extends Controller
                     ]);
             }
 
+            // Clear cart items after payment confirmation.
             $payment->cart?->items()->delete();
         });
     }

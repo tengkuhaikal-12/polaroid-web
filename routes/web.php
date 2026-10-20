@@ -1,18 +1,22 @@
 <?php
 
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\AuthController;
+use Inertia\Inertia;
+
 use App\Models\Product;
-use App\Http\Controllers\PaymentController;
+
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PhotoEditorController;
+use App\Http\Controllers\StudioController;
+use App\Http\Controllers\Seller\StudioOrderController;
 
 /*
 |--------------------------------------------------------------------------
-| Public & General Pages
+| 1. Public Pages
 |--------------------------------------------------------------------------
 */
 
@@ -22,78 +26,9 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('/cart', [CartController::class, 'index'])->name('cart');
-Route::post('/cart/items', [CartController::class, 'store'])->name('cart.items.store');
-Route::patch('/cart/items/{cartItem}', [CartController::class, 'update'])->name('cart.items.update');
-Route::delete('/cart/items/{cartItem}', [CartController::class, 'destroy'])->name('cart.items.destroy');
-Route::inertia('/checkout', 'checkout/checkout')->name('checkout');
-Route::inertia('/selfie', 'camera/CaptureSelfie')->name('selfie');
-
-Route::inertia('/dashboard', 'dashboard/Dashboard')->name('dashboard')->middleware(['auth', 'verified']);
-Route::middleware('auth')->group(function () {
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::patch('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
-    Route::post('/orders/{order}/checkout', [PaymentController::class, 'retry'])->name('orders.retry-payment');
-});
-
-
-/*
-|--------------------------------------------------------------------------
-| Authentication Routes
-|--------------------------------------------------------------------------
-*/
-
-Route::inertia('/login', 'auth/Login')->name('login');
-Route::inertia('/register', 'auth/Register')->name('register');
-
-// Handle Auth Actions
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
-
-
-/*
-|--------------------------------------------------------------------------
-| Product Management - Inertia Static Routes
-|--------------------------------------------------------------------------
-*/
-
-Route::inertia('/products', 'product/ProductManager')->name('product.index');
-
-
-/*
-|--------------------------------------------------------------------------
-| Product Management - Controller CRUD Routes (Protected for Admin)
-|--------------------------------------------------------------------------
-*/
-
-
-Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/products', [ProductController::class, 'index'])->name('product.index');
-    Route::get('/products/create', [ProductController::class, 'create'])->name('product.create');
-    Route::post('/products', [ProductController::class, 'store'])->name('product.store');
-
-    Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('product.edit');
-
-    Route::match(['post', 'put'], '/products/{product}', [ProductController::class, 'update'])->name('product.update');
-    Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('product.destroy');
-});
-
-/*
-|--------------------------------------------------------------------------
-| Payment Routes
-|--------------------------------------------------------------------------
-*/
-
-Route::post('/checkout', [PaymentController::class, 'checkout'])->middleware('auth')->name('payment.checkout');
-Route::get('/payment/return', [PaymentController::class, 'returnUrl'])->name('payment.return');
-Route::post('/payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');
-
-
-Route::post('/cart/studio', [CartController::class, 'addStudioItem'])
-    ->middleware('auth')
-    ->name('cart.studio.add');
-
+Route::get('/selfie', function () {
+    return Inertia::render('camera/CaptureSelfie');
+})->name('selfie');
 
 Route::get('/photo-studio', [
     PhotoEditorController::class,
@@ -103,3 +38,238 @@ Route::get('/photo-studio', [
 Route::get('/studio', function () {
     return Inertia::render('studio/Studio');
 })->name('studio');
+
+
+/*
+|--------------------------------------------------------------------------
+| 2. Authentication Pages and Actions
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('guest')->group(function () {
+    Route::inertia('/login', 'auth/Login')
+        ->name('login');
+
+    Route::inertia('/register', 'auth/Register')
+        ->name('register');
+
+    Route::post('/login', [AuthController::class, 'login'])
+        ->name('login.store');
+
+    Route::post('/register', [AuthController::class, 'register'])
+        ->name('register.store');
+});
+
+Route::post('/logout', [AuthController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('logout');
+
+
+/*
+|--------------------------------------------------------------------------
+| 3. Shopping Cart
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/cart', [CartController::class, 'index'])
+    ->name('cart');
+
+Route::middleware('auth')->group(function () {
+    Route::post('/cart/items', [CartController::class, 'store'])
+        ->name('cart.items.store');
+
+    Route::patch('/cart/items/{cartItem}', [
+        CartController::class,
+        'update',
+    ])->name('cart.items.update');
+
+    Route::delete('/cart/items/{cartItem}', [
+        CartController::class,
+        'destroy',
+    ])->name('cart.items.destroy');
+
+    Route::post('/cart/studio', [
+        CartController::class,
+        'addStudioItem',
+    ])->name('cart.studio.add');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| 4. Checkout
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')->group(function () {
+    Route::inertia('/checkout', 'checkout/checkout')
+        ->name('checkout');
+
+    Route::post('/checkout', [
+        PaymentController::class,
+        'checkout',
+    ])->name('payment.checkout');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| 5. Payment Gateway
+|--------------------------------------------------------------------------
+|
+| Keep the callback public because Bayarcash must be able to reach it.
+| Verify callback signatures in PaymentController.
+|
+*/
+
+Route::get('/payment/return', [
+    PaymentController::class,
+    'returnUrl',
+])->name('payment.return');
+
+Route::post('/payment/callback', [
+    PaymentController::class,
+    'callback',
+])->name('payment.callback');
+
+
+/*
+|--------------------------------------------------------------------------
+| 6. Customer Orders
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')->group(function () {
+    Route::get('/orders', [
+        OrderController::class,
+        'index',
+    ])->name('orders.index');
+
+    Route::patch('/orders/{order}/cancel', [
+        OrderController::class,
+        'cancel',
+    ])->name('orders.cancel');
+
+    Route::post('/orders/{order}/checkout', [
+        PaymentController::class,
+        'retry',
+    ])->name('orders.retry-payment');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| 7. Studio Print Requests
+|--------------------------------------------------------------------------
+|
+| Customer submits their photos and design for seller review.
+| Requires StudioController::submitPrintRequest().
+|
+*/
+
+Route::middleware('auth')->group(function () {
+    Route::post('/studio/print-requests', [
+        StudioController::class,
+        'submitPrintRequest',
+    ])->name('studio.print-requests.store');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| 8. Customer Dashboard
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/dashboard', function () {
+    return Inertia::render('dashboard/Dashboard');
+})->middleware(['auth', 'verified'])
+    ->name('dashboard');
+
+
+/*
+|--------------------------------------------------------------------------
+| 9. Product Management
+|--------------------------------------------------------------------------
+|
+| Public storefront and admin product management use different routes.
+| Do not define the same route name twice.
+|
+*/
+
+Route::get('/products', function () {
+    return Inertia::render('product/ProductManager');
+})->name('products.page');
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/products', [
+        ProductController::class,
+        'index',
+    ])->name('products.index');
+
+    Route::get('/products/create', [
+        ProductController::class,
+        'create',
+    ])->name('products.create');
+
+    Route::post('/products', [
+        ProductController::class,
+        'store',
+    ])->name('products.store');
+
+    Route::get('/products/{product}/edit', [
+        ProductController::class,
+        'edit',
+    ])->name('products.edit');
+
+    Route::match(['put', 'post'], '/products/{product}', [
+        ProductController::class,
+        'update',
+    ])->name('products.update');
+
+    Route::delete('/products/{product}', [
+        ProductController::class,
+        'destroy',
+    ])->name('products.destroy');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| 10. Seller Studio Order Management
+|--------------------------------------------------------------------------
+|
+| Temporary: uses your existing admin middleware.
+| Create a dedicated seller middleware if needed.
+|
+*/
+
+Route::middleware(['auth', 'admin'])
+    ->prefix('seller')
+    ->name('seller.')
+    ->group(function () {
+        Route::get('/studio-orders', [
+            StudioOrderController::class,
+            'index',
+        ])->name('studio-orders.index');
+
+        Route::get('/studio-orders/{order}', [
+            StudioOrderController::class,
+            'show',
+        ])->name('studio-orders.show');
+
+        Route::post('/studio-orders/{order}/approve', [
+            StudioOrderController::class,
+            'approve',
+        ])->name('studio-orders.approve');
+
+        Route::post('/studio-orders/{order}/reject', [
+            StudioOrderController::class,
+            'reject',
+        ])->name('studio-orders.reject');
+
+        Route::patch('/studio-orders/{order}/production-status', [
+            StudioOrderController::class,
+            'updateProductionStatus',
+        ])->name('studio-orders.production-status');
+    });

@@ -38,7 +38,7 @@ type DragMode = 'move' | 'resize';
 // 2. CONSTANTS
 // ============================================================
 
-const MAX_POLAROIDS = 9;
+const MAX_POLAROIDS = 2;
 const MAX_FILE_SIZE = 15 * 1024 * 1024;
 
 const filterStyles: Record<PhotoFilter, string> = {
@@ -319,26 +319,45 @@ export default function StudioCanvas() {
     // 8. ADD TO CART
     // --------------------------------------------------------
 
+
     function handleAddToCart() {
         if (!canPrint) {
-            window.alert(
-                'Please fill all nine Polaroids before adding them to your cart.',
-            );
+            window.alert('Please complete all required Polaroids first.');
             return;
         }
 
         if (polaroids.some((item) => !item.photo?.file)) {
-            window.alert(
-                'One or more photos are missing. Please upload them again.',
-            );
+            window.alert('One or more photos are missing.');
             return;
         }
 
-        const formData = {
-            polaroids: polaroids.map((item) => ({
-                photo: item.photo!.file,
-            })),
-        };
+        const formData = new FormData();
+
+        // A print quantity must be zero or a multiple of nine.
+        // This example adds one nine-print package.
+        formData.append('quantity', '9');
+        formData.append('style', 'regular');
+        formData.append('album', '0');
+
+        polaroids.forEach((item, index) => {
+            if (!item.photo?.file) return;
+
+            formData.append(
+                `photos[${index}][image]`,
+                item.photo.file,
+                item.photo.file.name,
+            );
+
+            formData.append(
+                `photos[${index}][is_selected]`,
+                '1',
+            );
+
+            formData.append(
+                `photos[${index}][position]`,
+                String(index),
+            );
+        });
 
         setIsSubmitting(true);
 
@@ -347,6 +366,11 @@ export default function StudioCanvas() {
 
             onError: (errors) => {
                 console.error('Add to cart failed:', errors);
+
+                window.alert(
+                    Object.values(errors).join('\n') ||
+                    'Unable to add the Studio collection.',
+                );
             },
 
             onFinish: () => {
@@ -354,6 +378,7 @@ export default function StudioCanvas() {
             },
         });
     }
+
 
     // --------------------------------------------------------
     // 9. STICKER DRAG AND RESIZE
