@@ -53,4 +53,15 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    /**
+     * Get the Studio collections associated with this order.
+     */
+    public function studioCollections(): HasMany
+    {
+        return $this->hasMany(
+            StudioCollection::class,
+            'order_id'
+        );
+    }
 }

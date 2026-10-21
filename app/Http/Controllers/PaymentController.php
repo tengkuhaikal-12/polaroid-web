@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\Payment;
@@ -32,10 +31,16 @@ class PaymentController extends Controller
     }
 
     /**
-     * Create an order and initiate payment using the account name and email.
+     * Create an order and initiate payment using the authenticated
+     * user's name and email.
      */
     public function checkout(Request $request)
     {
+        // Checkout requires an authenticated user.
+        $user = $request->user();
+
+        abort_unless($user, 401);
+
         $validated = $request->validate([
             'cart_id' => [
                 'required',
@@ -48,7 +53,9 @@ class PaymentController extends Controller
             ],
         ]);
 
-        $cart = Cart::with('items.product')->findOrFail($request->integer('cart_id'));
+        $cart = Cart::with('items.product')
+            ->findOrFail($request->integer('cart_id'));
+
         $this->ensureCartBelongsToRequester($request, $cart);
 
         if ($cart->items->isEmpty()) {
@@ -65,9 +72,9 @@ class PaymentController extends Controller
 
         $total = $subtotal + 5.00;
 
-        $order = DB::transaction(function () use ($request, $cart, $subtotal, $total, $validated) {
+        return DB::transaction(function () use ($request, $user, $cart, $subtotal, $total, $validated) {
             $order = Order::create([
-                'customer_id' => $request->user()->id,
+                'customer_id' => $user->id,
                 'subtotal' => $subtotal,
                 'total' => $total,
                 'status' => 'checkout',
@@ -95,7 +102,7 @@ class PaymentController extends Controller
                 ->all();
 
             $collections = StudioCollection::query()
-                ->where('user_id', $request->user()->id)
+                ->where('user_id', $user->id)
                 ->whereNull('order_id')
                 ->where(function ($query) use ($cartItemIds, $optionCollectionIds) {
                     if (!empty($cartItemIds)) {
@@ -129,34 +136,38 @@ class PaymentController extends Controller
                 ]);
             }
 
-        $order->items()->createMany($cart->items->map(fn ($item) => [
-            'product_id' => $item->product_id,
-            'name' => $item->product?->name ?? 'Product',
-            'quantity' => $item->quantity,
-            'price' => $item->price,
-        ])->all());
+            $order->items()->createMany(
+                $cart->items->map(fn($item) => [
+                    'product_id' => $item->product_id,
+                    'name' => $item->product?->name ?? 'Product',
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                ])->all()
+            );
 
-        // The order now owns this checkout. Further payment attempts happen
-        // from order history, so the active cart is ready for new items.
-        $cart->items()->delete();
+            // Preserve the existing checkout flow:
+            // the order owns its items, so clear the active cart.
+            $cart->items()->delete();
 
-        return $this->createPaymentAttempt(
-            $order,
-            $cart,
-            $name,
-            $email,
-            $validated['payment_channel'],
-        );
+            // FIX: use the authenticated user's actual name and email.
+            return $this->createPaymentAttempt(
+                $order,
+                $cart,
+                $user->name,
+                $user->email,
+                $validated['payment_channel'],
+            );
+        });
     }
 
     /**
      * Retry payment using the authenticated user's name and email.
      */
-    public function retry(
-        Order $order,
-        Request $request
-    ) {
+    public function retry(Order $order, Request $request)
+    {
         $user = $request->user();
+
+        abort_unless($user, 401);
 
         abort_unless(
             (int) $order->customer_id === (int) $user->id,
@@ -261,9 +272,7 @@ class PaymentController extends Controller
         }
 
         if ($response && isset($response->url)) {
-            return Inertia::location(
-                $response->url
-            );
+            return Inertia::location($response->url);
         }
 
         Payment::where('order_number', $orderNo)
@@ -362,7 +371,7 @@ class PaymentController extends Controller
 
         $isOwner = $user
             ? (int) $cart->user_id === (int) $user->id
-            : $cart->id === $request->session()->get('cart_id');
+            : (int) $cart->id === (int) $request->session()->get('cart_id');
 
         abort_unless($isOwner, 403);
     }

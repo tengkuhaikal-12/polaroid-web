@@ -1,3 +1,4 @@
+
 import inertia from '@inertiajs/vite';
 import { wayfinder } from '@laravel/vite-plugin-wayfinder';
 import babel from '@rolldown/plugin-babel';
@@ -24,9 +25,17 @@ export default defineConfig({
             presets: [reactCompilerPreset()],
         }),
         tailwindcss(),
-        wayfinder({
-            formVariants: true,
-        }),
+
+        // Generate Wayfinder files locally.
+        // Vercel uses the files committed to the repository.
+        ...(!process.env.VERCEL
+            ? [
+                  wayfinder({
+                      command: 'php artisan wayfinder:generate --with-form',
+                      formVariants: true,
+                  }),
+              ]
+            : []),
     ]),
     server: {
         watch: {

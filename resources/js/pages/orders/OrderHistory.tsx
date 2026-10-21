@@ -317,7 +317,6 @@ export default function OrderHistory({ orders }: OrdersProps) {
                                                 </p>
                                             </div>
                                         </div>
-                                    </div>
 
                                     {order.status === 'paid' && (
                                         <a
@@ -329,138 +328,140 @@ export default function OrderHistory({ orders }: OrdersProps) {
                                     )}
 
                                     {/* Pending Payment Timer & Actions */}
-                                    {order.status === 'checkout' && (
-                                        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border-2 border-[#31513A] bg-[#FFF8EA] p-4">
-                                            <div className="flex items-center gap-2">
-                                                <AlertCircle className="h-5 w-5 text-[#F26B82]" />
-                                                <span className="text-sm font-bold">
-                                                    Complete payment within 30 minutes to secure your order.
-                                                </span>
-                                            </div>
+                                        {order.status === 'checkout' && (
+                                            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border-2 border-[#31513A] bg-[#FFF8EA] p-4">
+                                                <div className="flex items-center gap-2">
+                                                    <AlertCircle className="h-5 w-5 text-[#F26B82]" />
+                                                    <span className="text-sm font-bold">
+                                                        Complete payment within 30 minutes to secure your order.
+                                                    </span>
+                                                </div>
 
-                                            {hasPhotos ? (
-                                                <div className="space-y-6">
-                                                    {collections.map(
-                                                        (collection) => {
-                                                            const photos =
-                                                                collection.photos ??
-                                                                [];
+                                                {hasPhotos ? (
+                                                    <div className="space-y-6">
+                                                        {collections.map(
+                                                            (collection) => {
+                                                                const photos =
+                                                                    collection.photos ??
+                                                                    [];
 
-                                                            if (
-                                                                photos.length ===
-                                                                0
-                                                            ) {
-                                                                return null;
-                                                            }
+                                                                if (
+                                                                    photos.length ===
+                                                                    0
+                                                                ) {
+                                                                    return null;
+                                                                }
 
-                                                            return (
-                                                                <section
-                                                                    key={
-                                                                        collection.id
-                                                                    }
-                                                                >
-                                                                    <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                                                                        <p className="font-black">
-                                                                            <Package className="mr-1 inline h-4 w-4" />
-                                                                            Collection
-                                                                            #
-                                                                            {
-                                                                                collection.id
-                                                                            }
-                                                                        </p>
+                                                                return (
+                                                                    <section
+                                                                        key={
+                                                                            collection.id
+                                                                        }
+                                                                    >
+                                                                        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                                                                            <p className="font-black">
+                                                                                <Package className="mr-1 inline h-4 w-4" />
+                                                                                Collection
+                                                                                #
+                                                                                {
+                                                                                    collection.id
+                                                                                }
+                                                                            </p>
 
-                                                                        <div className="flex flex-wrap gap-2">
-                                                                            {collection.printing_quantity !=
-                                                                                null && (
-                                                                                    <span className="rounded-full border-2 border-[#31513A] bg-[#FFF0A8] px-3 py-1 text-xs font-black">
-                                                                                        {
-                                                                                            collection.printing_quantity
-                                                                                        }{' '}
-                                                                                        PRINTS
-                                                                                    </span>
-                                                                                )}
-
-                                                                            {collection.album_option && (
-                                                                                <span className="rounded-full border-2 border-[#31513A] bg-[#CDE8B5] px-3 py-1 text-xs font-black">
-                                                                                    ALBUM
-                                                                                    INCLUDED
-                                                                                </span>
-                                                                            )}
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                                                                        {photos.map(
-                                                                            (
-                                                                                photo
-                                                                            ) => (
-                                                                                <div
-                                                                                    key={
-                                                                                        photo.id
-                                                                                    }
-                                                                                    className="overflow-hidden rounded-xl border-2 border-[#31513A] bg-[#FFF8EA] p-2 shadow-[3px_3px_0_#31513A]"
-                                                                                >
-                                                                                    {photo.image_url ? (
-                                                                                        <a
-                                                                                            href={
-                                                                                                photo.image_url
-                                                                                            }
-                                                                                            target="_blank"
-                                                                                            rel="noreferrer"
-                                                                                            className="block"
-                                                                                            title="Open full-size photo"
-                                                                                        >
-                                                                                            <img
-                                                                                                src={
-                                                                                                    photo.image_url
-                                                                                                }
-                                                                                                alt={`Uploaded photo ${photo.id}`}
-                                                                                                loading="lazy"
-                                                                                                className="aspect-square w-full rounded-lg object-cover transition hover:scale-[1.02]"
-                                                                                            />
-                                                                                        </a>
-                                                                                    ) : (
-                                                                                        <div className="flex aspect-square flex-col items-center justify-center gap-2 rounded-lg bg-[#CDE8B5] p-3 text-center text-xs font-bold">
-                                                                                            <ImageIcon className="h-8 w-8" />
-                                                                                            Image unavailable
-                                                                                        </div>
+                                                                            <div className="flex flex-wrap gap-2">
+                                                                                {collection.printing_quantity !=
+                                                                                    null && (
+                                                                                        <span className="rounded-full border-2 border-[#31513A] bg-[#FFF0A8] px-3 py-1 text-xs font-black">
+                                                                                            {
+                                                                                                collection.printing_quantity
+                                                                                            }{' '}
+                                                                                            PRINTS
+                                                                                        </span>
                                                                                     )}
 
-                                                                                    <p className="mt-2 truncate text-center text-xs font-bold">
-                                                                                        Photo
-                                                                                        #
-                                                                                        {
+                                                                                {collection.album_option && (
+                                                                                    <span className="rounded-full border-2 border-[#31513A] bg-[#CDE8B5] px-3 py-1 text-xs font-black">
+                                                                                        ALBUM
+                                                                                        INCLUDED
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                                                                            {photos.map(
+                                                                                (
+                                                                                    photo
+                                                                                ) => (
+                                                                                    <div
+                                                                                        key={
                                                                                             photo.id
                                                                                         }
-                                                                                    </p>
-                                                                                </div>
-                                                                            )
-                                                                        )}
-                                                                    </div>
-                                                                </section>
-                                                            );
-                                                        }
-                                                    )}
-                                                </div>
-                                            ) : (
-                                                <div className="rounded-2xl border-2 border-dashed border-[#31513A] bg-[#FFF8EA] p-6 text-center">
-                                                    <ImageIcon className="mx-auto mb-2 h-8 w-8 text-[#55725D]" />
+                                                                                        className="overflow-hidden rounded-xl border-2 border-[#31513A] bg-[#FFF8EA] p-2 shadow-[3px_3px_0_#31513A]"
+                                                                                    >
+                                                                                        {photo.image_url ? (
+                                                                                            <a
+                                                                                                href={
+                                                                                                    photo.image_url
+                                                                                                }
+                                                                                                target="_blank"
+                                                                                                rel="noreferrer"
+                                                                                                className="block"
+                                                                                                title="Open full-size photo"
+                                                                                            >
+                                                                                                <img
+                                                                                                    src={
+                                                                                                        photo.image_url
+                                                                                                    }
+                                                                                                    alt={`Uploaded photo ${photo.id}`}
+                                                                                                    loading="lazy"
+                                                                                                    className="aspect-square w-full rounded-lg object-cover transition hover:scale-[1.02]"
+                                                                                                />
+                                                                                            </a>
+                                                                                        ) : (
+                                                                                            <div className="flex aspect-square flex-col items-center justify-center gap-2 rounded-lg bg-[#CDE8B5] p-3 text-center text-xs font-bold">
+                                                                                                <ImageIcon className="h-8 w-8" />
+                                                                                                Image unavailable
+                                                                                            </div>
+                                                                                        )}
 
-                                                    <p className="font-bold">
-                                                        No uploaded photos
-                                                        linked to this order.
-                                                    </p>
+                                                                                        <p className="mt-2 truncate text-center text-xs font-bold">
+                                                                                            Photo
+                                                                                            #
+                                                                                            {
+                                                                                                photo.id
+                                                                                            }
+                                                                                        </p>
+                                                                                    </div>
+                                                                                )
+                                                                            )}
+                                                                        </div>
+                                                                    </section>
+                                                                );
+                                                            }
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <div className="rounded-2xl border-2 border-dashed border-[#31513A] bg-[#FFF8EA] p-6 text-center">
+                                                        <ImageIcon className="mx-auto mb-2 h-8 w-8 text-[#55725D]" />
 
-                                                    <p className="mt-1 text-sm text-[#55725D]">
-                                                        Photos will appear here
-                                                        when they are linked to
-                                                        this order's Studio
-                                                        collection.
-                                                    </p>
-                                                </div>
-                                            )}
-                                        </div>
+                                                        <p className="font-bold">
+                                                            No uploaded photos
+                                                            linked to this order.
+                                                        </p>
 
+                                                        <p className="mt-1 text-sm text-[#55725D]">
+                                                            Photos will appear here
+                                                            when they are linked to
+                                                            this order's Studio
+                                                            collection.
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                        )}
+                                        
                                         {/* Pending payment actions */}
                                         {order.status === 'checkout' && (
                                             <div className="mt-4 flex flex-col items-center justify-between gap-4 rounded-2xl border-2 border-[#31513A] bg-[#FFF8EA] p-4 sm:flex-row">
