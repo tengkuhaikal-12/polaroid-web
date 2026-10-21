@@ -24,8 +24,8 @@ class AuthController extends Controller
         if (auth()->attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
-            if ($request->user()->email === 'haikaltengku1741@gmail.com') {
-                return redirect()->intended('/products')->with('success', 'Welcome back, Admin!');
+            if ($request->user()->role === 'admin') {
+                return redirect()->intended('/seller/studio-orders')->with('success', 'Welcome back, Admin!');
             }
 
             return redirect()->intended('/dashboard')->with('success', 'Welcome back!');

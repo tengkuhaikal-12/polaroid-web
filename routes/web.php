@@ -235,13 +235,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 |--------------------------------------------------------------------------
 | 10. Seller Studio Order Management
 |--------------------------------------------------------------------------
-|
-| Temporary: uses your existing admin middleware.
-| Create a dedicated seller middleware if needed.
-|
 */
 
-Route::middleware(['auth', 'admin'])
+Route::middleware(['auth', 'seller'])
     ->prefix('seller')
     ->name('seller.')
     ->group(function () {
@@ -268,5 +264,10 @@ Route::middleware(['auth', 'admin'])
         Route::patch('/studio-orders/{order}/production-status', [
             StudioOrderController::class,
             'updateProductionStatus',
-        ])->name('studio-orders.production-status');
+        ])->name('seller.studio-orders.production-status');
+
+        Route::get(
+            '/studio-orders/{order}/print-pdf',
+            [StudioOrderController::class, 'downloadPrintPdf']
+        )->name('studio-orders.print-pdf');
     });

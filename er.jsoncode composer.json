@@ -1,0 +1,26 @@
+[1mdiff --cc composer.json[m
+[1mindex 5d147f8,c14b833..0000000[m
+[1m--- a/composer.json[m
+[1m+++ b/composer.json[m
+[36m@@@ -9,12 -9,13 +9,21 @@@[m
+      ],[m
+      "license": "MIT",[m
+      "require": {[m
+[32m++<<<<<<< HEAD[m
+[32m +        "bayarcash/php-sdk": "^3.1",[m
+[32m++=======[m
+[32m+         "php": "^8.3",[m
+[32m+         "barryvdh/laravel-dompdf": "*",[m
+[32m++>>>>>>> 1859ad5770c695780d0ae3f31f285058a5804633[m
+          "inertiajs/inertia-laravel": "^3.0",[m
+          "laravel/framework": "^13.17",[m
+          "laravel/tinker": "^3.0",[m
+          "laravel/wayfinder": "^0.1.14",[m
+[32m++<<<<<<< HEAD[m
+[32m +        "tecnickcom/tcpdf": "^6.0"[m
+[32m++=======[m
+[32m+         "webimpian/bayarcash-php-sdk": "^3.1"[m
+[32m++>>>>>>> 1859ad5770c695780d0ae3f31f285058a5804633[m
+      },[m
+      "require-dev": {[m
+          "fakerphp/faker": "^1.24",[m
