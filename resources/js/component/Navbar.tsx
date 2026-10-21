@@ -21,7 +21,7 @@ export default function Navbar({ auth }: NavbarProps) {
         { href: "#shop", label: "Shop", authRequired: false },
         { href: "#how", label: "How It Works", authRequired: false },
         { href: "#contact", label: "Contact", authRequired: false },
-        { href: "/products", label: "Manage", authRequired: true },
+        { href: "/admin/products", label: "Manage", authRequired: true },
         { href: "/selfie", label: "Selfie", authRequired: false },
         { href: "/cart", label: "Cart", authRequired: true },
         { href: "/orders", label: "Orders", authRequired: true }
@@ -166,7 +166,7 @@ export default function Navbar({ auth }: NavbarProps) {
                                 Contact
                             </a>
                             <Link
-                                href="/products"
+                                href="/admin/products"
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="rounded-full border-2 border-[#31513A] bg-white px-4 py-3 shadow-[3px_3px_0_#31513A] hover:bg-[#CDE8B5] transition text-center"
                             >

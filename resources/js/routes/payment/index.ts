@@ -1,7 +1,62 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
+* @see \App\Http\Controllers\PaymentController::checkout
+ * @see app/Http/Controllers/PaymentController.php:37
+ * @route '/checkout'
+ */
+export const checkout = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: checkout.url(options),
+    method: 'post',
+})
+
+checkout.definition = {
+    methods: ["post"],
+    url: '/checkout',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\PaymentController::checkout
+ * @see app/Http/Controllers/PaymentController.php:37
+ * @route '/checkout'
+ */
+checkout.url = (options?: RouteQueryOptions) => {
+    return checkout.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\PaymentController::checkout
+ * @see app/Http/Controllers/PaymentController.php:37
+ * @route '/checkout'
+ */
+checkout.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: checkout.url(options),
+    method: 'post',
+})
+
+    /**
+* @see \App\Http\Controllers\PaymentController::checkout
+ * @see app/Http/Controllers/PaymentController.php:37
+ * @route '/checkout'
+ */
+    const checkoutForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: checkout.url(options),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Http\Controllers\PaymentController::checkout
+ * @see app/Http/Controllers/PaymentController.php:37
+ * @route '/checkout'
+ */
+        checkoutForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: checkout.url(options),
+            method: 'post',
+        })
+    
+    checkout.form = checkoutForm
+/**
 * @see \App\Http\Controllers\PaymentController::returnMethod
- * @see app/Http/Controllers/PaymentController.php:284
+ * @see app/Http/Controllers/PaymentController.php:289
  * @route '/payment/return'
  */
 export const returnMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +71,7 @@ returnMethod.definition = {
 
 /**
 * @see \App\Http\Controllers\PaymentController::returnMethod
- * @see app/Http/Controllers/PaymentController.php:284
+ * @see app/Http/Controllers/PaymentController.php:289
  * @route '/payment/return'
  */
 returnMethod.url = (options?: RouteQueryOptions) => {
@@ -25,7 +80,7 @@ returnMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PaymentController::returnMethod
- * @see app/Http/Controllers/PaymentController.php:284
+ * @see app/Http/Controllers/PaymentController.php:289
  * @route '/payment/return'
  */
 returnMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +89,7 @@ returnMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\PaymentController::returnMethod
- * @see app/Http/Controllers/PaymentController.php:284
+ * @see app/Http/Controllers/PaymentController.php:289
  * @route '/payment/return'
  */
 returnMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +99,7 @@ returnMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\PaymentController::returnMethod
- * @see app/Http/Controllers/PaymentController.php:284
+ * @see app/Http/Controllers/PaymentController.php:289
  * @route '/payment/return'
  */
     const returnMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +109,7 @@ returnMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\PaymentController::returnMethod
- * @see app/Http/Controllers/PaymentController.php:284
+ * @see app/Http/Controllers/PaymentController.php:289
  * @route '/payment/return'
  */
         returnMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +118,7 @@ returnMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\PaymentController::returnMethod
- * @see app/Http/Controllers/PaymentController.php:284
+ * @see app/Http/Controllers/PaymentController.php:289
  * @route '/payment/return'
  */
         returnMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +134,7 @@ returnMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     returnMethod.form = returnMethodForm
 /**
 * @see \App\Http\Controllers\PaymentController::callback
- * @see app/Http/Controllers/PaymentController.php:324
+ * @see app/Http/Controllers/PaymentController.php:329
  * @route '/payment/callback'
  */
 export const callback = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +149,7 @@ callback.definition = {
 
 /**
 * @see \App\Http\Controllers\PaymentController::callback
- * @see app/Http/Controllers/PaymentController.php:324
+ * @see app/Http/Controllers/PaymentController.php:329
  * @route '/payment/callback'
  */
 callback.url = (options?: RouteQueryOptions) => {
@@ -103,7 +158,7 @@ callback.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PaymentController::callback
- * @see app/Http/Controllers/PaymentController.php:324
+ * @see app/Http/Controllers/PaymentController.php:329
  * @route '/payment/callback'
  */
 callback.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -113,7 +168,7 @@ callback.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\PaymentController::callback
- * @see app/Http/Controllers/PaymentController.php:324
+ * @see app/Http/Controllers/PaymentController.php:329
  * @route '/payment/callback'
  */
     const callbackForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -123,7 +178,7 @@ callback.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\PaymentController::callback
- * @see app/Http/Controllers/PaymentController.php:324
+ * @see app/Http/Controllers/PaymentController.php:329
  * @route '/payment/callback'
  */
         callbackForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -133,7 +188,8 @@ callback.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     
     callback.form = callbackForm
 const payment = {
-    return: Object.assign(returnMethod, returnMethod),
+    checkout: Object.assign(checkout, checkout),
+return: Object.assign(returnMethod, returnMethod),
 callback: Object.assign(callback, callback),
 }
 

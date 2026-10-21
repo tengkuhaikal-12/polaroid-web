@@ -1,6 +1,8 @@
 import studioOrders from './studio-orders'
-const seller = {
+import seller from './seller'
+const sellerNamespace = {
     studioOrders: Object.assign(studioOrders, studioOrders),
+seller: Object.assign(seller, seller),
 }
 
-export default seller
+export default sellerNamespace

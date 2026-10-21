@@ -270,7 +270,7 @@ receipt.head = (args: { order: number | { id: number } } | [order: number | { id
     receipt.form = receiptForm
 /**
 * @see \App\Http\Controllers\PaymentController::retryPayment
- * @see app/Http/Controllers/PaymentController.php:156
+ * @see app/Http/Controllers/PaymentController.php:163
  * @route '/orders/{order}/checkout'
  */
 export const retryPayment = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -285,7 +285,7 @@ retryPayment.definition = {
 
 /**
 * @see \App\Http\Controllers\PaymentController::retryPayment
- * @see app/Http/Controllers/PaymentController.php:156
+ * @see app/Http/Controllers/PaymentController.php:163
  * @route '/orders/{order}/checkout'
  */
 retryPayment.url = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -318,7 +318,7 @@ retryPayment.url = (args: { order: number | { id: number } } | [order: number | 
 
 /**
 * @see \App\Http\Controllers\PaymentController::retryPayment
- * @see app/Http/Controllers/PaymentController.php:156
+ * @see app/Http/Controllers/PaymentController.php:163
  * @route '/orders/{order}/checkout'
  */
 retryPayment.post = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -328,7 +328,7 @@ retryPayment.post = (args: { order: number | { id: number } } | [order: number |
 
     /**
 * @see \App\Http\Controllers\PaymentController::retryPayment
- * @see app/Http/Controllers/PaymentController.php:156
+ * @see app/Http/Controllers/PaymentController.php:163
  * @route '/orders/{order}/checkout'
  */
     const retryPaymentForm = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -338,7 +338,7 @@ retryPayment.post = (args: { order: number | { id: number } } | [order: number |
 
             /**
 * @see \App\Http\Controllers\PaymentController::retryPayment
- * @see app/Http/Controllers/PaymentController.php:156
+ * @see app/Http/Controllers/PaymentController.php:163
  * @route '/orders/{order}/checkout'
  */
         retryPaymentForm.post = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

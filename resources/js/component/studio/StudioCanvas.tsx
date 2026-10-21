@@ -15,6 +15,7 @@ import { router } from '@inertiajs/react';
 import { usePhotoboothStore } from '../../stores/usePhotoboothStore';
 import type { PhotoFilter } from '../../types/photobooth';
 import AutoPhotoCapture from '../../component/photobooth/AutoPhotoCapture';
+import Modal from '../Modal'
 
 // ============================================================
 // 1. TYPES
@@ -367,10 +368,12 @@ export default function StudioCanvas() {
             onError: (errors) => {
                 console.error('Add to cart failed:', errors);
 
-                window.alert(
+                setErrorMessage(
                     Object.values(errors).join('\n') ||
                     'Unable to add the Studio collection.',
                 );
+
+                setIsErrorModalOpen(true);
             },
 
             onFinish: () => {
@@ -500,6 +503,9 @@ export default function StudioCanvas() {
             `,
         }),
     };
+
+    const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     // ============================================================
     // 11. RENDER
@@ -906,6 +912,15 @@ export default function StudioCanvas() {
                 Select a Polaroid to edit its photo. Select a sticker
                 to move, resize or rotate it.
             </p>
+
+            <Modal
+                isOpen={isErrorModalOpen}
+                onClose={() => setIsErrorModalOpen(false)}
+                title="Unable to Add Collection"
+                message={errorMessage}
+                type="error"
+                confirmText="Got it"
+            />
         </section>
     );
 }

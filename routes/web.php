@@ -119,6 +119,13 @@ Route::middleware('auth')->group(function () {
 |
 */
 
+Route::middleware('auth')->group(function () {
+    Route::post('/checkout', [
+        PaymentController::class,
+        'checkout',
+    ])->name('payment.checkout');
+});
+
 Route::get('/payment/return', [
     PaymentController::class,
     'returnUrl',

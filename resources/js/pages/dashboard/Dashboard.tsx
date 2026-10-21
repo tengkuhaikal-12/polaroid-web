@@ -12,7 +12,7 @@ export default function Dashboard() {
         { title: "Upload Image", href: "/selfie", icon: Upload, color: "bg-[#FFF0A8]" },
         { title: "Cart", href: "/cart", icon: ShoppingCart, color: "bg-[#CDE8B5]" },
         { title: "Orders", href: "/orders", icon: Package, color: "bg-[#B5D8EB]" },
-        { title: "Polaroid Studio", href: "/selfie", icon: Sparkles, color: "bg-[#EBD8C3]" },
+        { title: "Polaroid Studio", href: "/studio", icon: Sparkles, color: "bg-[#EBD8C3]" },
         { title: "Profile", href: "/profile", icon: User, color: "bg-[#FFC8DD]" },
     ];
 
