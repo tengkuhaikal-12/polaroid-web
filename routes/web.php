@@ -194,9 +194,9 @@ Route::get('/dashboard', function () {
 |
 */
 
-Route::get('/products', function () {
-    return Inertia::render('product/ProductManager');
-})->name('products.page');
+// Route::get('/products', function () {
+//     return Inertia::render('product/ProductManager');
+// })->name('products.page');
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/products', [

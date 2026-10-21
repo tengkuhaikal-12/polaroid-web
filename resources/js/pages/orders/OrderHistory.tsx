@@ -242,7 +242,7 @@ export default function OrderHistory({ orders }: OrdersProps) {
                                 );
 
                                 return (
-                                    <article
+                                    < article
                                         key={order.id}
                                         className="rounded-[2rem] border-4 border-[#31513A] bg-white p-6 shadow-[7px_7px_0_#31513A] md:p-8"
                                     >
@@ -317,7 +317,6 @@ export default function OrderHistory({ orders }: OrdersProps) {
                                                 </p>
                                             </div>
                                         </div>
-
                                     {order.status === 'paid' && (
                                         <a
                                             href={`/orders/${order.id}/receipt`}
@@ -461,7 +460,6 @@ export default function OrderHistory({ orders }: OrdersProps) {
                                             </div>
 
                                         )}
-                                        
                                         {/* Pending payment actions */}
                                         {order.status === 'checkout' && (
                                             <div className="mt-4 flex flex-col items-center justify-between gap-4 rounded-2xl border-2 border-[#31513A] bg-[#FFF8EA] p-4 sm:flex-row">
