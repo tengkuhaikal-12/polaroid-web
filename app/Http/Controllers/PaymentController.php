@@ -48,25 +48,8 @@ class PaymentController extends Controller
             ],
         ]);
 
-        $user = $request->user();
-
-        $name = $user->name;
-        $email = $user->email;
-
-        if (blank($name) || blank($email)) {
-            return back()->withErrors([
-                'account' => 'Please ensure your account has a name and email address.',
-            ]);
-        }
-
-        $cart = Cart::with('items')->findOrFail(
-            $validated['cart_id']
-        );
-
-        $this->ensureCartBelongsToRequester(
-            $request,
-            $cart
-        );
+        $cart = Cart::with('items.product')->findOrFail($request->integer('cart_id'));
+        $this->ensureCartBelongsToRequester($request, $cart);
 
         if ($cart->items->isEmpty()) {
             return back()->with(
@@ -146,8 +129,16 @@ class PaymentController extends Controller
                 ]);
             }
 
-            return $order;
-        });
+        $order->items()->createMany($cart->items->map(fn ($item) => [
+            'product_id' => $item->product_id,
+            'name' => $item->product?->name ?? 'Product',
+            'quantity' => $item->quantity,
+            'price' => $item->price,
+        ])->all());
+
+        // The order now owns this checkout. Further payment attempts happen
+        // from order history, so the active cart is ready for new items.
+        $cart->items()->delete();
 
         return $this->createPaymentAttempt(
             $order,

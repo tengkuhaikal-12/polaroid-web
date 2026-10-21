@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -69,5 +70,16 @@ class OrderController extends Controller
             'success',
             'Order canceled.'
         );
+    }
+
+    public function receipt(Request $request, Order $order)
+    {
+        abort_unless($order->customer_id === $request->user()->id, 404);
+
+        $order->load('customer', 'items');
+
+        return Pdf::loadView('pdf.receipt', ['order' => $order])
+            ->setPaper('a4')
+            ->download("receipt-{$order->id}.pdf");
     }
 }
