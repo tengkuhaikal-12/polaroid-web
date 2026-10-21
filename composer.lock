@@ -4,8 +4,64 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ac7ef3c1866cef0915639d7c7b6ceeda",
+    "content-hash": "a5e437e1ee1fad211aee1dcc2853d8bd",
     "packages": [
+        {
+            "name": "bayarcash/php-sdk",
+            "version": "v3.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bayarcash/php-sdk.git",
+                "reference": "fee736fa3a003ac10e034788898f6add7070d23e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bayarcash/php-sdk/zipball/fee736fa3a003ac10e034788898f6add7070d23e",
+                "reference": "fee736fa3a003ac10e034788898f6add7070d23e",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "guzzlehttp/guzzle": "^7.0",
+                "php": "^7.4|^8.0"
+            },
+            "require-dev": {
+                "illuminate/support": "^7.0|^8.0|^9.0|^10.0|^11.0",
+                "phpunit/phpunit": "^9.5|^10.5"
+            },
+            "type": "sdk",
+            "extra": {
+                "laravel": {
+                    "alias": {
+                        "BayarcashSdk": "Bayarcash\\Facades\\Bayarcash"
+                    },
+                    "providers": [
+                        "Bayarcash\\BayarcashSdkServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Bayarcash\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "faiz",
+                    "email": "faizafzal@webmpian.com"
+                }
+            ],
+            "description": "Bayarcash payment gateway PHP Sdk.",
+            "support": {
+                "issues": "https://github.com/bayarcash/php-sdk/issues",
+                "source": "https://github.com/bayarcash/php-sdk/tree/v3.1.0"
+            },
+            "time": "2026-08-20T11:58:08+00:00"
+        },
         {
             "name": "brick/math",
             "version": "1.0.0",
@@ -6090,6 +6146,83 @@
             "time": "2026-08-30T20:10:52+00:00"
         },
         {
+            "name": "tecnickcom/tcpdf",
+            "version": "6.11.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tecnickcom/TCPDF.git",
+                "reference": "fbbaf14cfae8fe646f154f7c530d15ec25764040"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tecnickcom/TCPDF/zipball/fbbaf14cfae8fe646f154f7c530d15ec25764040",
+                "reference": "fbbaf14cfae8fe646f154f7c530d15ec25764040",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "php": ">=7.1.0"
+            },
+            "suggest": {
+                "ext-gd": "Enables additional image handling in some workflows.",
+                "ext-imagick": "Enables additional image format support when available.",
+                "ext-zlib": "Recommended for compressed streams and related features.",
+                "tecnickcom/tc-lib-pdf": "Modern replacement for TCPDF."
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "config",
+                    "include",
+                    "tcpdf.php",
+                    "tcpdf_barcodes_1d.php",
+                    "tcpdf_barcodes_2d.php",
+                    "include/tcpdf_colors.php",
+                    "include/tcpdf_filters.php",
+                    "include/tcpdf_font_data.php",
+                    "include/tcpdf_fonts.php",
+                    "include/tcpdf_images.php",
+                    "include/tcpdf_static.php",
+                    "include/barcodes/datamatrix.php",
+                    "include/barcodes/pdf417.php",
+                    "include/barcodes/qrcode.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Nicola Asuni",
+                    "email": "info@tecnick.com",
+                    "role": "lead"
+                }
+            ],
+            "description": "Deprecated legacy PDF engine for PHP. Migrate to tecnickcom/tc-lib-pdf.",
+            "homepage": "https://tcpdf.org",
+            "keywords": [
+                "PDFD32000-2008",
+                "TCPDF",
+                "barcodes",
+                "datamatrix",
+                "pdf",
+                "pdf417",
+                "qrcode"
+            ],
+            "support": {
+                "issues": "https://github.com/tecnickcom/TCPDF/issues",
+                "source": "https://github.com/tecnickcom/TCPDF"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sponsors/tecnickcom",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-08-28T11:28:19+00:00"
+        },
+        {
             "name": "tijsverkoyen/css-to-inline-styles",
             "version": "v2.4.0",
             "source": {
@@ -6301,63 +6434,6 @@
                 }
             ],
             "time": "2026-04-26T05:33:54+00:00"
-        },
-        {
-            "name": "webimpian/bayarcash-php-sdk",
-            "version": "v3.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/bayarcash/php-sdk.git",
-                "reference": "fee736fa3a003ac10e034788898f6add7070d23e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/bayarcash/php-sdk/zipball/fee736fa3a003ac10e034788898f6add7070d23e",
-                "reference": "fee736fa3a003ac10e034788898f6add7070d23e",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "guzzlehttp/guzzle": "^7.0",
-                "php": "^7.4|^8.0"
-            },
-            "require-dev": {
-                "illuminate/support": "^7.0|^8.0|^9.0|^10.0|^11.0",
-                "phpunit/phpunit": "^9.5|^10.5"
-            },
-            "type": "sdk",
-            "extra": {
-                "laravel": {
-                    "alias": {
-                        "BayarcashSdk": "Bayarcash\\Facades\\Bayarcash"
-                    },
-                    "providers": [
-                        "Bayarcash\\BayarcashSdkServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Bayarcash\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "faiz",
-                    "email": "faizafzal@webmpian.com"
-                }
-            ],
-            "description": "Bayarcash payment gateway PHP Sdk.",
-            "support": {
-                "issues": "https://github.com/bayarcash/php-sdk/issues",
-                "source": "https://github.com/bayarcash/php-sdk/tree/v3.1.0"
-            },
-            "abandoned": "bayarcash/php-sdk",
-            "time": "2026-08-20T11:58:08+00:00"
         }
     ],
     "packages-dev": [
@@ -10479,9 +10555,7 @@
     "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": {
-        "php": "^8.3"
-    },
+    "platform": {},
     "platform-dev": {},
     "plugin-api-version": "2.9.0"
 }

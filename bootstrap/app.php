@@ -6,6 +6,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
+use App\Http\Middleware\SellerMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -22,6 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Register the admin middleware alias
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminOnly::class,
+        ]);
+        $middleware->alias([
+            'seller' => SellerMiddleware::class,
         ]);
 
         // Exempt payment gateway webhook from CSRF verification
