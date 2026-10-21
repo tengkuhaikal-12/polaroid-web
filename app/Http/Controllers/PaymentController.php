@@ -129,24 +129,25 @@ class PaymentController extends Controller
                 ]);
             }
 
-        $order->items()->createMany($cart->items->map(fn ($item) => [
-            'product_id' => $item->product_id,
-            'name' => $item->product?->name ?? 'Product',
-            'quantity' => $item->quantity,
-            'price' => $item->price,
-        ])->all());
+            $order->items()->createMany($cart->items->map(fn($item) => [
+                'product_id' => $item->product_id,
+                'name' => $item->product?->name ?? 'Product',
+                'quantity' => $item->quantity,
+                'price' => $item->price,
+            ])->all());
 
-        // The order now owns this checkout. Further payment attempts happen
-        // from order history, so the active cart is ready for new items.
-        $cart->items()->delete();
+            // The order now owns this checkout. Further payment attempts happen
+            // from order history, so the active cart is ready for new items.
+            $cart->items()->delete();
 
-        return $this->createPaymentAttempt(
-            $order,
-            $cart,
-            $name,
-            $email,
-            $validated['payment_channel'],
-        );
+            return $this->createPaymentAttempt(
+                $order,
+                $cart,
+                $request->user()->name,
+                $request->user()->email,
+                $validated['payment_channel'],
+            );
+        });
     }
 
     /**
