@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Seller;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Services\FirebaseStorageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +16,11 @@ use TCPDF;
 
 class StudioOrderController extends Controller
 {
+    public function __construct(
+        protected FirebaseStorageService $firebaseStorage
+    ) {
+    }
+
     public function index(): Response
     {
         $orders = Order::query()
@@ -64,10 +70,8 @@ class StudioOrderController extends Controller
                 $photo->setAttribute(
                     'image_url',
                     $photo->image_path
-                    ? Storage::disk('public')->url(
-                        $photo->image_path
-                    )
-                    : null
+                        ? $this->firebaseStorage->getUrl($photo->image_path)
+                        : null
                 );
             });
         });
@@ -281,18 +285,26 @@ class StudioOrderController extends Controller
                         "Photo {$photo->id} has no image path."
                     );
 
-                    // Resolve the actual file on Laravel's public disk.
-                    $imagePath = Storage::disk('public')->path(
-                        $relativePath
-                    );
+                    // Resolve the actual file from Firebase.
+                    $imageUrl = $this->firebaseStorage->getUrl($relativePath);
 
                     abort_unless(
-                        is_file($imagePath),
+                        $imageUrl,
                         404,
-                        "Image file for photo {$photo->id} was not found: {$imagePath}"
+                        "Image URL for photo {$photo->id} could not be generated."
                     );
 
-                    $printImagePath = $imagePath;
+                    // Download the image from Firebase to a temporary local file for TCPDF.
+                    $imageContent = file_get_contents($imageUrl);
+                    if ($imageContent === false) {
+                        abort(500, "Unable to download image from Firebase for photo {$photo->id}.");
+                    }
+
+                    $tempImagePath = tempnam(sys_get_temp_dir(), 'pdf_img_');
+                    file_put_contents($tempImagePath, $imageContent);
+                    $temporaryFiles[] = $tempImagePath;
+
+                    $printImagePath = $tempImagePath;
 
                     /*
                      * Optional CMYK conversion.
@@ -303,7 +315,7 @@ class StudioOrderController extends Controller
                      * guarantee accurate color conversion.
                      */
                     if (extension_loaded('imagick')) {
-                        $image = new \Imagick($imagePath);
+                        $image = new \Imagick($printImagePath);
 
                         try {
                             $image->setImageFormat('jpeg');

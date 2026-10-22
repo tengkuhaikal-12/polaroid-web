@@ -21,8 +21,19 @@ use App\Http\Controllers\Seller\StudioOrderController;
 */
 
 Route::get('/', function () {
+    $products = \App\Models\Product::latest()->get()->map(function ($product) {
+        return [
+            'id' => $product->id,
+            'name' => $product->name,
+            'price' => $product->price,
+            'prints' => $product->prints,
+            'image' => app(\App\Services\FirebaseStorageService::class)->getUrl($product->image),
+            'color' => $product->color,
+        ];
+    });
+
     return Inertia::render('welcome', [
-        'products' => Product::latest()->get(),
+        'products' => $products,
     ]);
 })->name('home');
 
@@ -74,6 +85,11 @@ Route::post('/logout', [AuthController::class, 'destroy'])
 Route::get('/cart', [CartController::class, 'index'])
     ->name('cart');
 
+Route::post('/cart/add-studio', [
+    CartController::class,
+    'addStudioItem',
+])->name('cart.studio.add');
+
 Route::middleware('auth')->group(function () {
     Route::post('/cart/items', [CartController::class, 'store'])
         ->name('cart.items.store');
@@ -88,7 +104,7 @@ Route::middleware('auth')->group(function () {
         'destroy',
     ])->name('cart.items.destroy');
 
-    Route::post('/cart/studio', [
+    Route::post('/cart/add-studio', [
         CartController::class,
         'addStudioItem',
     ])->name('cart.studio.add');

@@ -201,7 +201,7 @@ const getPhotoUrl = (photo: Photo): string | null => {
 
     }
 
-    return `/storage/${value}`;
+    return null;
 
 };
 

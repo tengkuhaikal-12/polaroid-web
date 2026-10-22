@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Seller\StudioOrderController::productionStatus
- * @see app/Http/Controllers/Seller/StudioOrderController.php:147
+ * @see app/Http/Controllers/Seller/StudioOrderController.php:151
  * @route '/seller/studio-orders/{order}/production-status'
  */
 export const productionStatus = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -16,7 +16,7 @@ productionStatus.definition = {
 
 /**
 * @see \App\Http\Controllers\Seller\StudioOrderController::productionStatus
- * @see app/Http/Controllers/Seller/StudioOrderController.php:147
+ * @see app/Http/Controllers/Seller/StudioOrderController.php:151
  * @route '/seller/studio-orders/{order}/production-status'
  */
 productionStatus.url = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ productionStatus.url = (args: { order: number | { id: number } } | [order: numbe
 
 /**
 * @see \App\Http\Controllers\Seller\StudioOrderController::productionStatus
- * @see app/Http/Controllers/Seller/StudioOrderController.php:147
+ * @see app/Http/Controllers/Seller/StudioOrderController.php:151
  * @route '/seller/studio-orders/{order}/production-status'
  */
 productionStatus.patch = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -59,7 +59,7 @@ productionStatus.patch = (args: { order: number | { id: number } } | [order: num
 
     /**
 * @see \App\Http\Controllers\Seller\StudioOrderController::productionStatus
- * @see app/Http/Controllers/Seller/StudioOrderController.php:147
+ * @see app/Http/Controllers/Seller/StudioOrderController.php:151
  * @route '/seller/studio-orders/{order}/production-status'
  */
     const productionStatusForm = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -74,7 +74,7 @@ productionStatus.patch = (args: { order: number | { id: number } } | [order: num
 
             /**
 * @see \App\Http\Controllers\Seller\StudioOrderController::productionStatus
- * @see app/Http/Controllers/Seller/StudioOrderController.php:147
+ * @see app/Http/Controllers/Seller/StudioOrderController.php:151
  * @route '/seller/studio-orders/{order}/production-status'
  */
         productionStatusForm.patch = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

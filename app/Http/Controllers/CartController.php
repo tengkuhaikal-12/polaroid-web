@@ -37,23 +37,37 @@ class CartController extends Controller
         ]);
 
         $cart->items->each(function (CartItem $item): void {
+            // 1. Resolve normal product image URL
+            if ($item->product && $item->product->image) {
+                $item->product->setAttribute(
+                    'image',
+                    $this->firebaseStorage->getUrl($item->product->image)
+                );
+            }
+
             $collection = $item->studioCollection;
 
             if (!$collection) {
                 return;
             }
 
-            $collection->setAttribute(
-                'preview_url',
-                $collection->preview_url
-            );
+            // 2. Resolve Studio collection preview URL
+            if ($collection->preview_path) {
+                $collection->setAttribute(
+                    'preview_url',
+                    $this->firebaseStorage->getUrl($collection->preview_path)
+                );
+            }
 
+            // 3. Resolve Studio photos URLs
             $collection->photos->each(
                 function (StudioPhoto $photo): void {
-                    $photo->setAttribute(
-                        'image_url',
-                        $photo->image_url
-                    );
+                    if ($photo->image_path) {
+                        $photo->setAttribute(
+                            'image_url',
+                            $this->firebaseStorage->getUrl($photo->image_path)
+                        );
+                    }
                 }
             );
         });
@@ -208,6 +222,9 @@ class CartController extends Controller
      */
     public function addStudioItem(Request $request): RedirectResponse
     {
+        // DEBUG: Test if the request hits the controller
+        // return response()->json(['message' => 'Controller reached!']);
+
         $user = $request->user();
 
         abort_unless($user, 401);
@@ -267,7 +284,7 @@ class CartController extends Controller
         }
 
         // Assumes product ID 1 is the generic Studio product.
-        $product = Product::findOrFail(1);
+        $product = Product::findOrFail(5);
 
         $newFiles = [];
         $oldFiles = [];
@@ -304,7 +321,8 @@ class CartController extends Controller
 
                     $imagePath = $this->firebaseStorage->upload(
                         $image,
-                        'studio-photos'
+                        'studio-photos',
+                        'studio_photo_' . $user->name . '_' . time()
                     );
 
                     $newFiles[] = $imagePath;

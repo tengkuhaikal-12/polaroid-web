@@ -1,8 +1,8 @@
-import items from './items'
 import studio from './studio'
+import items from './items'
 const cart = {
-    items: Object.assign(items, items),
-studio: Object.assign(studio, studio),
+    studio: Object.assign(studio, studio),
+items: Object.assign(items, items),
 }
 
 export default cart

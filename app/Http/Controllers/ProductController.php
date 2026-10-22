@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Services\FirebaseStorageService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -68,9 +69,11 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
+            $filename = Str::slug($validated['name']) . '_' . time();
             $validated['image'] = $this->firebaseStorage->upload(
                 $request->file('image'),
-                'products'
+                'products',
+                $filename
             );
         }
 
@@ -107,9 +110,11 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
+            $filename = Str::slug($validated['name']) . '_' . time();
             $newImagePath = $this->firebaseStorage->upload(
                 $request->file('image'),
-                'products'
+                'products',
+                $filename
             );
 
             // Delete the old image only after the new upload succeeds.
@@ -138,6 +143,9 @@ class ProductController extends Controller
         if ($product->image) {
             $this->firebaseStorage->delete($product->image);
         }
+
+        // Remove all cart items associated with this product.
+        \App\Models\CartItem::where('product_id', $product->id)->delete();
 
         $product->delete();
 

@@ -27,15 +27,15 @@ class FirebaseStorageService
      * Upload a file and return its object path.
      * Store this path, not the signed URL, in the database.
      */
-    public function upload(UploadedFile $file, string $path): string
+    public function upload(UploadedFile $file, string $path, ?string $filename = null): string
     {
         $fileStream = null;
 
         try {
             $bucket = $this->storage->getBucket();
 
-            $filename = uniqid('', true) . '_'
-                . basename($file->getClientOriginalName());
+            $filename = $filename ?? (uniqid('', true) . '_'
+                . basename($file->getClientOriginalName()));
 
             $fullPath = trim($path, '/') . '/' . $filename;
 

@@ -321,32 +321,39 @@ export default function StudioCanvas() {
     // --------------------------------------------------------
 
 
+
     function handleAddToCart() {
+        console.log('[Studio Cart] Button clicked');
+        console.log('[Studio Cart] canPrint:', canPrint);
+        console.log('[Studio Cart] polaroids:', polaroids);
+
         if (!canPrint) {
+            console.warn('[Studio Cart] Blocked: canPrint is false');
             window.alert('Please complete all required Polaroids first.');
             return;
         }
 
         if (polaroids.some((item) => !item.photo?.file)) {
+            console.warn('[Studio Cart] Blocked: one or more files are missing');
             window.alert('One or more photos are missing.');
             return;
         }
 
         const formData = new FormData();
 
-        // A print quantity must be zero or a multiple of nine.
-        // This example adds one nine-print package.
         formData.append('quantity', '9');
         formData.append('style', 'regular');
         formData.append('album', '0');
 
         polaroids.forEach((item, index) => {
-            if (!item.photo?.file) return;
+            const file = item.photo?.file;
+
+            if (!file) return;
 
             formData.append(
                 `photos[${index}][image]`,
-                item.photo.file,
-                item.photo.file.name,
+                file,
+                file.name,
             );
 
             formData.append(
@@ -360,27 +367,55 @@ export default function StudioCanvas() {
             );
         });
 
+        console.log('[Studio Cart] FormData prepared');
+
+        for (const [key, value] of formData.entries()) {
+            console.log(
+                '[Studio Cart] FormData:',
+                key,
+                value instanceof File
+                    ? `${value.name} (${value.size} bytes)`
+                    : value,
+            );
+        }
+
         setIsSubmitting(true);
 
-        router.post('/cart/studio', formData, {
+        console.log('[Studio Cart] Sending POST /cart/add-studio');
+
+        router.post('/cart/add-studio', formData, {
             forceFormData: true,
 
+            onStart: () => {
+                console.log('[Studio Cart] Inertia request started');
+            },
+
+            onProgress: (progress) => {
+                console.log('[Studio Cart] Upload progress:', progress);
+            },
+
             onError: (errors) => {
-                console.error('Add to cart failed:', errors);
+                console.error('[Studio Cart] Validation or page errors:', errors);
 
-                setErrorMessage(
+                const message =
                     Object.values(errors).join('\n') ||
-                    'Unable to add the Studio collection.',
-                );
+                    'Unable to add the Studio collection. Check the console and Laravel logs.';
 
+                setErrorMessage(message);
                 setIsErrorModalOpen(true);
             },
 
+            onSuccess: (page) => {
+                console.log('[Studio Cart] Request succeeded:', page);
+            },
+
             onFinish: () => {
+                console.log('[Studio Cart] Request finished');
                 setIsSubmitting(false);
             },
         });
     }
+
 
 
     // --------------------------------------------------------
@@ -649,8 +684,8 @@ export default function StudioCanvas() {
                                         startDrag(event, sticker, 'move')
                                     }
                                     className={`absolute touch-none select-none ${selectedId === sticker.id
-                                            ? 'z-20 outline outline-2 outline-dashed outline-[#31513A]'
-                                            : 'z-10'
+                                        ? 'z-20 outline outline-2 outline-dashed outline-[#31513A]'
+                                        : 'z-10'
                                         }`}
                                     style={{
                                         left: `${sticker.x}%`,
