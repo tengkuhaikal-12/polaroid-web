@@ -10,7 +10,9 @@
     "license": "MIT",
     "require": {
         "bayarcash/php-sdk": "^3.1",
+        "google/cloud-storage": "*",
         "inertiajs/inertia-laravel": "^3.0",
+        "kreait/firebase-php": "^8.6",
         "laravel/framework": "^13.17",
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.14",

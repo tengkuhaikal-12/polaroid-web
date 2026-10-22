@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Head, Link, usePage, router } from '@inertiajs/react';
-import { Plus, Trash2, Edit3, ArrowLeft } from 'lucide-react';
+import { Plus, Trash2, Edit3, ArrowLeft, ImageOff } from 'lucide-react';
 import Modal from '@/component/Modal';
 
 interface Product {
@@ -18,12 +18,42 @@ interface IndexProps {
     [key: string]: unknown;
 }
 
+function ProductImage({ product }: { product: Product }) {
+    const [hasError, setHasError] = useState(false);
+
+    useEffect(() => {
+        setHasError(false);
+    }, [product.image]);
+
+    return (
+        <div className="flex h-52 items-center justify-center overflow-hidden rounded-[1.5rem] border-2 border-[#31513A] bg-black p-3">
+            {product.image && !hasError ? (
+                <img
+                    src={product.image}
+                    alt={product.name}
+                    className="h-full w-full object-contain"
+                    loading="lazy"
+                    onError={() => setHasError(true)}
+                />
+            ) : (
+                <div className="flex flex-col items-center gap-2 text-white">
+                    <ImageOff className="h-8 w-8" />
+                    <p className="text-sm">
+                        {product.image ? 'Image unavailable' : 'No image'}
+                    </p>
+                </div>
+            )}
+        </div>
+    );
+}
+
 export default function ProductManager({ products }: IndexProps) {
     const { props } = usePage();
     const flash = (props as any).flash;
 
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+    const [selectedProductId, setSelectedProductId] =
+        useState<number | null>(null);
     const [successModalOpen, setSuccessModalOpen] = useState(false);
 
     useEffect(() => {
@@ -69,7 +99,9 @@ export default function ProductManager({ products }: IndexProps) {
                 <div className="mx-auto mt-5 max-w-6xl">
                     <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
                         <div>
-                            <p className="text-[#F26B82]">♡ Inventory Manager ♡</p>
+                            <p className="text-[#F26B82]">
+                                ♡ Inventory Manager ♡
+                            </p>
                             <h1 className="mt-2 text-4xl tracking-tight md:text-6xl">
                                 Manage products
                             </h1>
@@ -90,23 +122,14 @@ export default function ProductManager({ products }: IndexProps) {
                                 key={product.id}
                                 className={`rounded-[2rem] border-4 border-[#31513A] ${product.color || 'bg-white'} p-5 shadow-[7px_7px_0_#31513A]`}
                             >
-                                <div className="flex h-52 items-center justify-center overflow-hidden rounded-[1.5rem] border-2 border-[#31513A] bg-black p-3">
-                                    {product.image ? (
-                                        <img
-                                            src={product.image}
-                                            alt={product.name}
-                                            className="h-full w-full object-contain"
-                                        />
-                                    ) : (
-                                        <p className="text-white">No image</p>
-                                    )}
-                                </div>
+                                <ProductImage product={product} />
 
                                 <div className="mt-5">
                                     <div className="flex items-start justify-between gap-3">
                                         <h3 className="text-2xl font-black">
                                             {product.name}
                                         </h3>
+
                                         <span className="shrink-0 text-xl font-bold">
                                             RM {Number(product.price).toFixed(2)}
                                         </span>

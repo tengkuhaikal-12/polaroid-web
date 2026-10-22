@@ -503,7 +503,7 @@ logout.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     logout.form = logoutForm
 /**
 * @see \App\Http\Controllers\CartController::cart
- * @see app/Http/Controllers/CartController.php:25
+ * @see app/Http/Controllers/CartController.php:30
  * @route '/cart'
  */
 export const cart = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -518,7 +518,7 @@ cart.definition = {
 
 /**
 * @see \App\Http\Controllers\CartController::cart
- * @see app/Http/Controllers/CartController.php:25
+ * @see app/Http/Controllers/CartController.php:30
  * @route '/cart'
  */
 cart.url = (options?: RouteQueryOptions) => {
@@ -527,7 +527,7 @@ cart.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\CartController::cart
- * @see app/Http/Controllers/CartController.php:25
+ * @see app/Http/Controllers/CartController.php:30
  * @route '/cart'
  */
 cart.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -536,7 +536,7 @@ cart.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\CartController::cart
- * @see app/Http/Controllers/CartController.php:25
+ * @see app/Http/Controllers/CartController.php:30
  * @route '/cart'
  */
 cart.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -546,7 +546,7 @@ cart.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\CartController::cart
- * @see app/Http/Controllers/CartController.php:25
+ * @see app/Http/Controllers/CartController.php:30
  * @route '/cart'
  */
     const cartForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -556,7 +556,7 @@ cart.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\CartController::cart
- * @see app/Http/Controllers/CartController.php:25
+ * @see app/Http/Controllers/CartController.php:30
  * @route '/cart'
  */
         cartForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -565,7 +565,7 @@ cart.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\CartController::cart
- * @see app/Http/Controllers/CartController.php:25
+ * @see app/Http/Controllers/CartController.php:30
  * @route '/cart'
  */
         cartForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

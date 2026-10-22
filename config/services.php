@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'firebase' => [
+        'project_id' => env('VITE_FIREBASE_PROJECT_ID'),
+        'storage_bucket' => env('FIREBASE_STORAGE_BUCKET'),
+        'credentials' => env('FIREBASE_CREDENTIALS'),
+    ],
+
 ];

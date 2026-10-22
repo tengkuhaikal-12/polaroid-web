@@ -1,531 +1,521 @@
 <?php
 
-namespace App\Http\Controllers;
-
-use App\Models\Cart;
-use App\Models\CartItem;
-use App\Models\Product;
-use App\Models\StudioCollection;
-use App\Models\StudioPhoto;
-use App\Services\StudioPricingService;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Inertia\Inertia;
-use Inertia\Response;
-use Throwable;
-
-class CartController extends Controller
-{
-    /**
-     * Display the current signed-in or guest cart.
-     */
-    public function index(Request $request): Response
-    {
-        $cart = $this->currentCart($request);
-
-        $cart->load([
-            'items.product',
-            'items.studioCollection.photos',
-        ]);
-
-        // Provide URLs that the React cart page can display.
-        $cart->items->each(function (CartItem $item): void {
-            $collection = $item->studioCollection;
-
-            if (!$collection) {
-                return;
-            }
-
-            // URL of the saved, composed Studio design preview.
-            $collection->setAttribute(
-                'preview_url',
-                $collection->preview_path
-                ? Storage::disk('public')->url(
-                    $collection->preview_path
-                )
-                : null
-            );
-
-            // URLs of the original uploaded photos.
-            $collection->photos->each(
-                function (StudioPhoto $photo): void {
-                    $photo->setAttribute(
-                        'image_url',
-                        $photo->image_path
-                        ? Storage::disk('public')->url(
-                            $photo->image_path
-                        )
-                        : null
-                    );
-                }
-            );
-        });
-
-        return Inertia::render('cart/cart', [
-            'cart' => $cart,
-        ]);
-    }
-
-    /**
-     * Add a normal product to the cart.
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        $validated = $request->validate([
-            'product_id' => [
-                'required',
-                'integer',
-                'exists:products,id',
-            ],
-            'quantity' => [
-                'sometimes',
-                'integer',
-                'min:1',
-                'max:100',
-            ],
-            'options' => [
-                'nullable',
-                'array',
-            ],
-        ]);
-
-        $product = Product::findOrFail(
-            $validated['product_id']
-        );
-
-        $quantity = $validated['quantity'] ?? 1;
-
-        if (
-            $product->stock_quantity !== null &&
-            $quantity > $product->stock_quantity
-        ) {
-            return back()->withErrors([
-                'quantity' => 'The requested quantity is not available.',
-            ]);
-        }
-
-        DB::transaction(function () use ($request, $product, $quantity, $validated): void {
-            $cart = $this->currentCart($request);
-            $options = $validated['options'] ?? null;
-
-            $item = $cart->items()
-                ->where('product_id', $product->id)
-                ->get()
-                ->first(
-                    fn(CartItem $cartItem) =>
-                        $cartItem->options === $options
-                );
-
-            $newQuantity = ($item?->quantity ?? 0) + $quantity;
-
-            if (
-                $product->stock_quantity !== null &&
-                $newQuantity > $product->stock_quantity
-            ) {
-                abort(
-                    422,
-                    'The requested quantity is not available.'
-                );
-            }
-
-            if ($item) {
-                $item->update([
-                    'quantity' => $newQuantity,
-                ]);
-
-                return;
-            }
-
-            $cart->items()->create([
-                'product_id' => $product->id,
-                'quantity' => $quantity,
-                'price' => $product->price,
-                'options' => $options,
-            ]);
-        });
-
-        return to_route('cart')->with(
-            'success',
-            'Added to your cart.'
-        );
-    }
-
-    /**
-     * Update a normal cart item's quantity.
-     */
-    public function update(
-        Request $request,
-        CartItem $cartItem
-    ): RedirectResponse {
-        $validated = $request->validate([
-            'quantity' => [
-                'required',
-                'integer',
-                'min:1',
-                'max:100',
-            ],
-        ]);
-
-        $this->ensureCurrentCartOwns(
-            $request,
-            $cartItem
-        );
-
-        // A Studio cart item represents a configured collection.
-        if (
-            data_get($cartItem->options, 'type') ===
-            'studio_polaroid_collection'
-        ) {
-            return back()->withErrors([
-                'quantity' =>
-                    'Change the print quantity in Studio instead.',
-            ]);
-        }
-
-        $cartItem->load('product');
-
-        if (
-            $cartItem->product->stock_quantity !== null &&
-            $validated['quantity'] >
-            $cartItem->product->stock_quantity
-        ) {
-            return back()->withErrors([
-                'quantity' => 'The requested quantity is not available.',
-            ]);
-        }
-
-        $cartItem->update([
-            'quantity' => $validated['quantity'],
-        ]);
-
-        return back();
-    }
-
-    /**
-     * Remove a cart item and its associated Studio collection.
-     */
-    public function destroy(
-        Request $request,
-        CartItem $cartItem
-    ): RedirectResponse {
-        $this->ensureCurrentCartOwns(
-            $request,
-            $cartItem
-        );
-
-        $collection = StudioCollection::query()
-            ->where('cart_item_id', $cartItem->id)
-            ->first();
-
-        $imagePaths = [];
-
-        if ($collection) {
-            $imagePaths = $collection->photos()
-                ->pluck('image_path')
-                ->filter()
-                ->values()
-                ->all();
-        }
-
-        DB::transaction(function () use ($cartItem, $collection): void {
-            if ($collection) {
-                $collection->photos()->delete();
-                $collection->delete();
-            }
-
-            $cartItem->delete();
-        });
-
-        // Delete files only after the database transaction succeeds.
-        foreach ($imagePaths as $path) {
-            Storage::disk('public')->delete($path);
-        }
-
-        return back();
-    }
-
-    /**
-     * Add a Studio collection and its uploaded photos to the cart.
-     */
-    public function addStudioItem(
-        Request $request
-    ): RedirectResponse {
-        $user = $request->user();
-
-        // Studio collections require an authenticated user.
-        abort_unless($user, 401);
-
-        $validated = $request->validate([
-            'collection_id' => [
-                'nullable',
-                'integer',
-                'exists:studio_collections,id',
-            ],
-
-            'photos' => [
-                'required',
-                'array',
-                'min:1',
-                'max:144',
-            ],
-
-            'photos.*.id' => [
-                'nullable',
-                'integer',
-            ],
-
-            'photos.*.image' => [
-                'required',
-                'image',
-                'mimes:jpg,jpeg,png,webp',
-                'max:15360',
-            ],
-
-            'photos.*.is_selected' => [
-                'required',
-                'boolean',
-            ],
-
-            'photos.*.position' => [
-                'required',
-                'integer',
-                'min:0',
-            ],
-
-            'quantity' => [
-                'required',
-                'integer',
-                'min:0',
-                'max:144',
-            ],
-
-            'style' => [
-                'required',
-                'string',
-                'in:regular,borderless,designed_border',
-            ],
-
-            'album' => [
-                'required',
-                'boolean',
-            ],
-        ]);
-
-        $pricing = app(StudioPricingService::class);
-
-        try {
-            $pricing->validateQuantity(
-                $validated['quantity']
-            );
-        } catch (\InvalidArgumentException $exception) {
-            return back()->withErrors([
-                'quantity' => $exception->getMessage(),
-            ]);
-        }
-
-        $printingPrice = $pricing->calculatePrintingPrice(
-            $validated['quantity'],
-            $validated['style']
-        );
-
-        $albumPrice = $validated['album']
-            ? $pricing->getAlbumPrice()
-            : 0.00;
-
-        $totalPrice = $printingPrice + $albumPrice;
-
-        // Verify ownership before updating an existing collection.
-        $collection = null;
-
-        if (!empty($validated['collection_id'])) {
-            $collection = StudioCollection::query()
-                ->whereKey($validated['collection_id'])
-                ->where('user_id', $user->id)
-                ->firstOrFail();
-
-            // Do not overwrite a collection already attached to
-            // a different cart item or order.
-            abort_if(
-                $collection->cart_item_id !== null ||
-                $collection->order_id !== null,
-                409,
-                'This Studio collection is already attached to an order.'
-            );
-        }
-
-        // Assumes product ID 1 is the generic Studio product.
-        $product = Product::findOrFail(1);
-
-        $newFiles = [];
-        $oldFiles = [];
-
-        try {
-            DB::transaction(function () use ($request, $user, $validated, $printingPrice, $albumPrice, $totalPrice, $collection, $product, &$newFiles, &$oldFiles): void {
-                $cart = $this->currentCart($request);
-
-                $studioCollection = $collection
-                    ?? new StudioCollection();
-
-                $studioCollection->fill([
-                    'user_id' => $user->id,
-                    'status' => 'in_cart',
-                    'printing_quantity' =>
-                        $validated['quantity'],
-                    'printing_style' =>
-                        $validated['style'],
-                    'album_option' =>
-                        $validated['album'],
-                    'printing_price' => $printingPrice,
-                    'album_price' => $albumPrice,
-                ]);
-
-                $studioCollection->save();
-
-                foreach ($validated['photos'] as $photoData) {
-                    /** @var UploadedFile $image */
-                    $image = $photoData['image'];
-
-                    $photo = null;
-
-                    if (!empty($photoData['id'])) {
-                        $photo = $studioCollection->photos()
-                            ->whereKey($photoData['id'])
-                            ->first();
-                    }
-
-                    $imagePath = $image->store(
-                        'studio-photos',
-                        'public'
-                    );
-
-                    if (!$imagePath) {
-                        throw new \RuntimeException(
-                            'Unable to store an uploaded Studio photo.'
-                        );
-                    }
-
-                    $newFiles[] = $imagePath;
-
-                    $attributes = [
-                        'position' => $photoData['position'],
-                        'image_path' => $imagePath,
-                        'is_selected' =>
-                            $photoData['is_selected'],
-                    ];
-
-                    if ($photo) {
-                        if ($photo->image_path) {
-                            $oldFiles[] = $photo->image_path;
-                        }
-
-                        $photo->update($attributes);
-                    } else {
-                        $studioCollection->photos()->create(
-                            $attributes
-                        );
-                    }
-                }
-
-                $cartItem = $cart->items()->create([
-                    'product_id' => $product->id,
-                    'quantity' => 1,
-                    'price' => $totalPrice,
-                    'options' => [
-                        'type' =>
-                            'studio_polaroid_collection',
-                        'studio_collection_id' =>
-                            $studioCollection->id,
-                        'config' => [
-                            'quantity' =>
-                                $validated['quantity'],
-                            'style' =>
-                                $validated['style'],
-                            'album' =>
-                                $validated['album'],
-                        ],
-                    ],
-                ]);
-
-                $studioCollection->update([
-                    'cart_item_id' => $cartItem->id,
-                ]);
-            });
-        } catch (Throwable $exception) {
-            // Database rollback does not remove uploaded files.
-            foreach (array_unique($newFiles) as $path) {
-                Storage::disk('public')->delete($path);
-            }
-
-            report($exception);
-
-            throw $exception;
-        }
-
-        // Remove replaced images after the transaction succeeds.
-        foreach (array_unique($oldFiles) as $path) {
-            if (!in_array($path, $newFiles, true)) {
-                Storage::disk('public')->delete($path);
-            }
-        }
-
-        return to_route('cart')->with(
-            'success',
-            'Your Studio collection has been added to your cart.'
-        );
-    }
-
-    /**
-     * Get the current user's cart or guest session cart.
-     */
-    private function currentCart(Request $request): Cart
-    {
-        if ($request->user()) {
-            return Cart::firstOrCreate([
-                'user_id' => $request->user()->id,
-            ]);
-        }
-
-        $session = $request->session();
-        $cartId = $session->get('cart_id');
-
-        if ($cartId) {
-            $cart = Cart::query()
-                ->whereKey($cartId)
-                ->whereNull('user_id')
-                ->where(
-                    'session_id',
-                    $session->getId()
-                )
-                ->first();
-
-            if ($cart) {
-                return $cart;
-            }
-        }
-
-        $cart = Cart::firstOrCreate([
-            'session_id' => $session->getId(),
-        ]);
-
-        $session->put('cart_id', $cart->id);
-
-        return $cart;
-    }
-
-    /**
-     * Ensure the cart item belongs to the current cart.
-     */
-    private function ensureCurrentCartOwns(
-        Request $request,
-        CartItem $cartItem
-    ): void {
-        abort_unless(
-            (int) $cartItem->cart_id ===
-            (int) $this->currentCart($request)->id,
-            404
-        );
-    }
-}
+ namespace App\Http\Controllers;
+
+ use App\Models\Cart;
+ use App\Models\CartItem;
+ use App\Models\Product;
+ use App\Models\StudioCollection;
+ use App\Models\StudioPhoto;
+ use App\Services\StudioPricingService;
+ use App\Services\FirebaseStorageService;
+ use Illuminate\Http\RedirectResponse;
+ use Illuminate\Http\Request;
+ use Illuminate\Http\UploadedFile;
+ use Illuminate\Support\Facades\DB;
+ use Illuminate\Support\Facades\Storage;
+ use Inertia\Inertia;
+ use Inertia\Response;
+ use Throwable;
+
+ class CartController extends Controller
+ {
+     public function __construct(
+         protected FirebaseStorageService $firebaseStorage
+     ) {}
+
+     /**
+      * Display the current signed-in or guest cart.
+      */
+     public function index(Request $request): Response
+     {
+         $cart = $this->currentCart($request);
+
+         $cart->load([
+             'items.product',
+             'items.studioCollection.photos',
+         ]);
+
+         // Provide URLs that the React cart page can display.
+         $cart->items->each(function (CartItem $item): void {
+             $collection = $item->studioCollection;
+
+             if (!$collection) {
+                 return;
+             }
+
+             // Use the model's accessor for the preview URL.
+             $collection->setAttribute(
+                 'preview_url',
+                 $collection->preview_url
+             );
+
+             // Use the model's accessor for the original uploaded photos.
+             $collection->photos->each(
+                 function (StudioPhoto $photo): void {
+                     $photo->setAttribute(
+                         'image_url',
+                         $photo->image_url
+                     );
+                 }
+             );
+         });
+
+         return Inertia::render('cart/cart', [
+             'cart' => $cart,
+         ]);
+     }
+
+     /**
+      * Add a normal product to the cart.
+      */
+     public function store(Request $request): RedirectResponse
+     {
+         $validated = $request->validate([
+             'product_id' => [
+                 'required',
+                 'integer',
+                 'exists:products,id',
+             ],
+             'quantity' => [
+                 'sometimes',
+                 'integer',
+                 'min:1',
+                 'max:100',
+             ],
+             'options' => [
+                 'nullable',
+                 'array',
+             ],
+         ]);
+
+         $product = Product::findOrFail(
+             $validated['product_id']
+         );
+
+         $quantity = $validated['quantity'] ?? 1;
+
+         if (
+             $product->stock_quantity !== null &&
+             $quantity > $product->stock_quantity
+         ) {
+             return back()->withErrors([
+                 'quantity' => 'The requested quantity is not available.',
+             ]);
+         }
+
+         DB::transaction(function () use ($request, $product, $quantity, $validated): void {
+             $cart = $this->currentCart($request);
+             $options = $validated['options'] ?? null;
+
+             $item = $cart->items()
+                 ->where('product_id', $product->id)
+                 ->get()
+                 ->first(
+                     fn(CartItem $cartItem) =>
+                         $cartItem->options === $options
+                 );
+
+             $newQuantity = ($item?->quantity ?? 0) + $quantity;
+
+             if (
+                 $product->stock_quantity !== null &&
+                 $newQuantity > $product->stock_quantity
+             ) {
+                 abort(
+                     422,
+                     'The requested quantity is not available.'
+                 );
+             }
+
+             if ($item) {
+                 $item->update([
+                     'quantity' => $newQuantity,
+                 ]);
+
+                 return;
+             }
+
+             $cart->items()->create([
+                 'product_id' => $product->id,
+                 'quantity' => $quantity,
+                 'price' => $product->price,
+                 'options' => $options,
+             ]);
+         });
+
+         return to_route('cart')->with(
+             'success',
+             'Added to your cart.'
+         );
+     }
+
+     /**
+      * Update a normal cart item's quantity.
+      */
+     public function update(
+         Request $request,
+         CartItem $cartItem
+     ): RedirectResponse {
+         $validated = $request->validate([
+             'quantity' => [
+                 'required',
+                 'integer',
+                 'min:1',
+                 'max:100',
+             ],
+         ]);
+
+         $this->ensureCurrentCartOwns(
+             $request,
+             $cartItem
+         );
+
+         // A Studio cart item represents a configured collection.
+         if (
+             data_get($cartItem->options, 'type') ===
+             'studio_polaroid_collection'
+         ) {
+             return back()->withErrors([
+                 'quantity' =>
+                     'Change the print quantity in Studio instead.',
+             ]);
+         }
+
+         $cartItem->load('product');
+
+         if (
+             $cartItem->product->stock_quantity !== null &&
+             $validated['quantity'] >
+             $cartItem->product->stock_quantity
+         ) {
+             return back()->withErrors([
+                 'quantity' => 'The requested quantity is not available.',
+             ]);
+         }
+
+         $cartItem->update([
+             'quantity' => $validated['quantity'],
+         ]);
+
+         return back();
+     }
+
+     /**
+      * Remove a cart item and its associated Studio collection.
+      */
+     public function destroy(
+         Request $request,
+         CartItem $cartItem
+     ): RedirectResponse {
+         $this->ensureCurrentCartOwns(
+             $request,
+             $cartItem
+         );
+
+         $collection = StudioCollection::query()
+             ->where('cart_item_id', $cartItem->id)
+             ->first();
+
+         $imagePaths = [];
+
+         if ($collection) {
+             $imagePaths = $collection->photos()
+                 ->pluck('image_path')
+                 ->filter()
+                 ->values()
+                 ->all();
+         }
+
+         DB::transaction(function () use ($cartItem, $collection): void {
+             if ($collection) {
+                 $collection->photos()->delete();
+                 $collection->delete();
+             }
+
+             $cartItem->delete();
+         });
+
+         // Delete files from Firebase only after the database transaction succeeds.
+         foreach ($imagePaths as $path) {
+             $this->firebaseStorage->delete($path);
+         }
+
+         return back();
+     }
+
+     /**
+      * Add a Studio collection and its uploaded photos to the cart.
+      */
+     public function addStudioItem(
+         Request $request
+     ): RedirectResponse {
+         $user = $request->user();
+
+         // Studio collections require an authenticated user.
+         abort_unless($user, 401);
+
+         $validated = $request->validate([
+             'collection_id' => [
+                 'nullable',
+                 'integer',
+                 'exists:studio_collections,id',
+             ],
+
+             'photos' => [
+                 'required',
+                 'array',
+                 'min:1',
+                 'max:144',
+             ],
+
+             'photos.*.id' => [
+                 'nullable',
+                 'integer',
+             ],
+
+             'photos.*.image' => [
+                 'required',
+                 'image',
+                 'mimes:jpg,jpeg,png,webp',
+                 'max:15360',
+             ],
+
+             'photos.*.is_selected' => [
+                 'required',
+                 'boolean',
+             ],
+
+             'photos.*.position' => [
+                 'required',
+                 'integer',
+                 'min:0',
+             ],
+
+             'quantity' => [
+                 'required',
+                 'integer',
+                 'min:0',
+                 'max:144',
+             ],
+
+             'style' => [
+                 'required',
+                 'string',
+                 'in:regular,borderless,designed_border',
+             ],
+
+             'album' => [
+                 'required',
+                 'boolean',
+             ],
+         ]);
+
+         $pricing = app(StudioPricingService::class);
+
+         try {
+             $pricing->validateQuantity(
+                 $validated['quantity']
+             );
+         } catch (\InvalidArgumentException $exception) {
+             return back()->withErrors([
+                 'quantity' => $exception->getMessage(),
+             ]);
+         }
+
+         $printingPrice = $pricing->calculatePrintingPrice(
+             $validated['quantity'],
+             $validated['style']
+         );
+
+         $albumPrice = $validated['album']
+             ? $pricing->getAlbumPrice()
+             : 0.00;
+
+         $totalPrice = $printingPrice + $albumPrice;
+
+         // Verify ownership before updating an existing collection.
+         $collection = null;
+
+         if (!empty($validated['collection_id'])) {
+             $collection = StudioCollection::query()
+                 ->whereKey($validated['collection_id'])
+                 ->where('user_id', $user->id)
+                 ->firstOrFail();
+
+             // Do not overwrite a collection already attached to an order.
+             abort_if(
+                 $collection->cart_item_id !== null ||
+                 $collection->order_id !== null,
+                 409,
+                 'This Studio collection is already attached to an order.'
+             );
+         }
+
+         // Assumes product ID 1 is the generic Studio product.
+         $product = Product::findOrFail(1);
+
+         $newFiles = [];
+         $oldFiles = [];
+
+         try {
+             DB::transaction(function () use ($request, $user, $validated, $printingPrice, $albumPrice, $totalPrice, $collection, $product, &$newFiles, &$oldFiles): void {
+                 $cart = $this->currentCart($request);
+
+                 $studioCollection = $collection
+                     ?? new StudioCollection();
+
+                 $studioCollection->fill([
+                     'user_id' => $user->id,
+                     'status' => 'in_cart',
+                     'printing_quantity' =>
+                         $validated['quantity'],
+                     'printing_style' =>
+                         $validated['style'],
+                     'album_option' =>
+                         $validated['album'],
+                     'printing_price' => $printingPrice,
+                     'album_price' => $albumPrice,
+                 ]);
+
+                 $studioCollection->save();
+
+                 foreach ($validated['photos'] as $photoData) {
+                     /** @var UploadedFile $image */
+                     $image = $photoData['image'];
+
+                     $photo = null;
+
+                     if (!empty($photoData['id'])) {
+                         $photo = $studioCollection->photos()
+                             ->whereKey($photoData['id'])
+                             ->first();
+                     }
+
+                     $imagePath = $this->firebaseStorage->upload(
+                         $image,
+                         'studio-photos'
+                     );
+
+                     $newFiles[] = $imagePath;
+
+                     $attributes = [
+                         'position' => $photoData['position'],
+                         'image_path' => $imagePath,
+                         'is_selected' =>
+                             $photoData['is_selected'],
+                     ];
+
+                     if ($photo) {
+                         if ($photo->image_path) {
+                             $oldFiles[] = $photo->image_path;
+                         }
+
+                         $photo->update($attributes);
+                     } else {
+                         $studioCollection->photos()->create(
+                             $attributes
+                         );
+                     }
+                 }
+
+                 $cartItem = $cart->items()->create([
+                     'product_id' => $product->id,
+                     'quantity' => 1,
+                     'price' => $totalPrice,
+                     'options' => [
+                         'type' =>
+                             'studio_polaroid_collection',
+                         'studio_collection_id' =>
+                             $studioCollection->id,
+                         'config' => [
+                             'quantity' =>
+                                 $validated['quantity'],
+                             'style' =>
+                                 $validated['style'],
+                             'album' =>
+                                 $validated['album'],
+                         ],
+                     ],
+                 ]);
+
+                 $studioCollection->update([
+                     'cart_item_id' => $cartItem->id,
+                 ]);
+             });
+         } catch (Throwable $exception) {
+             // Clean up any newly uploaded files if the transaction fails.
+             foreach (array_unique($newFiles) as $path) {
+                 $this->firebaseStorage->delete($path);
+             }
+
+             report($exception);
+
+             throw $exception;
+         }
+
+         // Remove replaced images after the transaction succeeds.
+         foreach (array_unique($oldFiles) as $path) {
+             if (!in_array($path, $newFiles, true)) {
+                 $this->firebaseStorage->delete($path);
+             }
+         }
+
+         return to_route('cart')->with(
+             'success',
+             'Your Studio collection has been added to your cart.'
+         );
+     }
+
+     /**
+      * Get the current user's cart or guest session cart.
+      */
+     private function currentCart(Request $request): Cart
+     {
+         if ($request->user()) {
+             return Cart::firstOrCreate([
+                 'user_id' => $request->user()->id,
+             ]);
+         }
+
+         $session = $request->session();
+         $cartId = $session->get('cart_id');
+
+         if ($cartId) {
+             $cart = Cart::query()
+                 ->whereKey($cartId)
+                 ->whereNull('user_id')
+                 ->where(
+                     'session_id',
+                     $session->getId()
+                 )
+                 ->first();
+
+             if ($cart) {
+                 return $cart;
+             }
+         }
+
+         $cart = Cart::firstOrCreate([
+             'session_id' => $session->getId(),
+         ]);
+
+         $session->put('cart_id', $cart->id);
+
+         return $cart;
+     }
+
+     /**
+      * Ensure the cart item belongs to the current cart.
+      */
+     private function ensureCurrentCartOwns(
+         Request $request,
+         CartItem $cartItem
+     ): void {
+         abort_unless(
+             (int) $cartItem->cart_id ===
+             (int) $this->currentCart($request)->id,
+             404
+         );
+     }
+ }

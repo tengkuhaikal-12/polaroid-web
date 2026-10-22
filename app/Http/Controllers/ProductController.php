@@ -3,20 +3,43 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Services\FirebaseStorageService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Http\RedirectResponse;
 
 class ProductController extends Controller
 {
+    public function __construct(
+        protected FirebaseStorageService $firebaseStorage
+    ) {
+    }
+
+    /**
+     * Convert the stored image path to a URL for the frontend.
+     */
+    private function formatProduct(Product $product): array
+    {
+        $data = $product->toArray();
+
+        $data['image'] = $this->firebaseStorage->getUrl(
+            $product->image
+        );
+
+        return $data;
+    }
+
     /**
      * Display all products in the admin manager.
      */
     public function index(): Response
     {
-        $products = Product::latest()->get();
+        $products = Product::latest()
+            ->get()
+            ->map(fn(Product $product) => $this->formatProduct($product))
+            ->values()
+            ->all();
 
         return Inertia::render('product/ProductManager', [
             'products' => $products,
@@ -45,9 +68,10 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('products', 'public');
-
-            $validated['image'] = '/storage/' . $path;
+            $validated['image'] = $this->firebaseStorage->upload(
+                $request->file('image'),
+                'products'
+            );
         }
 
         Product::create($validated);
@@ -63,7 +87,7 @@ class ProductController extends Controller
     public function edit(Product $product): Response
     {
         return Inertia::render('product/EditProduct', [
-            'product' => $product,
+            'product' => $this->formatProduct($product),
         ]);
     }
 
@@ -83,23 +107,19 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            // Delete the previous image if it exists.
-            if ($product->image) {
-                $oldImagePath = str_replace(
-                    '/storage/',
-                    '',
-                    $product->image
-                );
+            $newImagePath = $this->firebaseStorage->upload(
+                $request->file('image'),
+                'products'
+            );
 
-                Storage::disk('public')->delete($oldImagePath);
+            // Delete the old image only after the new upload succeeds.
+            if ($product->image) {
+                $this->firebaseStorage->delete($product->image);
             }
 
-            // Save the replacement image.
-            $path = $request->file('image')->store('products', 'public');
-
-            $validated['image'] = '/storage/' . $path;
+            $validated['image'] = $newImagePath;
         } else {
-            // Preserve the current image if no new image was uploaded.
+            // Keep the existing stored image path.
             unset($validated['image']);
         }
 
@@ -115,15 +135,8 @@ class ProductController extends Controller
      */
     public function destroy(Product $product): RedirectResponse
     {
-        // Delete the image from public storage.
         if ($product->image) {
-            $imagePath = str_replace(
-                '/storage/',
-                '',
-                $product->image
-            );
-
-            Storage::disk('public')->delete($imagePath);
+            $this->firebaseStorage->delete($product->image);
         }
 
         $product->delete();

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\StudioController::submitPrintRequest
- * @see app/Http/Controllers/StudioController.php:17
+ * @see app/Http/Controllers/StudioController.php:22
  * @route '/studio/print-requests'
  */
 export const submitPrintRequest = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ submitPrintRequest.definition = {
 
 /**
 * @see \App\Http\Controllers\StudioController::submitPrintRequest
- * @see app/Http/Controllers/StudioController.php:17
+ * @see app/Http/Controllers/StudioController.php:22
  * @route '/studio/print-requests'
  */
 submitPrintRequest.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ submitPrintRequest.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\StudioController::submitPrintRequest
- * @see app/Http/Controllers/StudioController.php:17
+ * @see app/Http/Controllers/StudioController.php:22
  * @route '/studio/print-requests'
  */
 submitPrintRequest.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ submitPrintRequest.post = (options?: RouteQueryOptions): RouteDefinition<'post'>
 
     /**
 * @see \App\Http\Controllers\StudioController::submitPrintRequest
- * @see app/Http/Controllers/StudioController.php:17
+ * @see app/Http/Controllers/StudioController.php:22
  * @route '/studio/print-requests'
  */
     const submitPrintRequestForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ submitPrintRequest.post = (options?: RouteQueryOptions): RouteDefinition<'post'>
 
             /**
 * @see \App\Http\Controllers\StudioController::submitPrintRequest
- * @see app/Http/Controllers/StudioController.php:17
+ * @see app/Http/Controllers/StudioController.php:22
  * @route '/studio/print-requests'
  */
         submitPrintRequestForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

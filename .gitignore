@@ -42,3 +42,4 @@ yarn-error.log
 /opencode.json
 /opencode.jsonc
 .aider*
+/storage/app/firebase/service-account.json
