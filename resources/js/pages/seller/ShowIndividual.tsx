@@ -740,17 +740,23 @@ export default function ShowIndividual({ order }: Props) {
                                                                             >
 
 
-                                                                                <img
-                                                                                    src={photo.image_url}
-                                                                                    alt={`Customer photo ${photo.position ?? ''}`}
-                                                                                    className="h-32 w-24 rounded object-cover"
-                                                                                    onError={(event) => {
-                                                                                        console.error(
-                                                                                            'Failed to load photo:',
-                                                                                            photo.image_url
-                                                                                        );
-                                                                                    }}
-                                                                                />
+                                                                                {photo.image_url ? (
+                                                                                    <img
+                                                                                        src={photo.image_url}
+                                                                                        alt={`Customer photo ${photo.position ?? ''}`}
+                                                                                        className="h-32 w-24 rounded object-cover"
+                                                                                        onError={() => {
+                                                                                            console.error(
+                                                                                                'Failed to load photo:',
+                                                                                                photo.image_url
+                                                                                            );
+                                                                                        }}
+                                                                                    />
+                                                                                ) : (
+                                                                                    <div className="flex h-32 w-24 items-center justify-center rounded bg-gray-100 text-xs text-gray-500">
+                                                                                        No image
+                                                                                    </div>
+                                                                                )}
 
 
                                                                             </a>

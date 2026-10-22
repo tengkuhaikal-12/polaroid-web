@@ -3,14 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Services\FirebaseStorageService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class OrderController extends Controller
 {
+    public function __construct(
+        protected FirebaseStorageService $firebaseStorage
+    ) {
+    }
+
     /**
      * Display the authenticated customer's order history.
      */
@@ -24,18 +29,19 @@ class OrderController extends Controller
             ->latest()
             ->get();
 
-        // Generate public image URLs for every uploaded Studio photo.
+        // Generate Firebase URLs for all Studio photos.
         $orders->each(function (Order $order): void {
             $order->studioCollections->each(function ($collection): void {
                 $collection->photos->each(function ($photo): void {
-                    $photo->setAttribute(
-                        'image_url',
-                        $photo->image_path
-                        ? Storage::disk('public')->url(
+                    $imageUrl = null;
+
+                    if ($photo->image_path) {
+                        $imageUrl = $this->firebaseStorage->getUrl(
                             $photo->image_path
-                        )
-                        : null
-                    );
+                        );
+                    }
+
+                    $photo->setAttribute('image_url', $imageUrl);
                 });
             });
         });
@@ -52,11 +58,13 @@ class OrderController extends Controller
         Request $request,
         Order $order
     ) {
+        // Customers may only cancel their own orders.
         abort_unless(
             (int) $order->customer_id === (int) $request->user()->id,
             404
         );
 
+        // Only orders awaiting checkout can be canceled.
         abort_unless(
             $order->status === 'checkout',
             422
@@ -66,19 +74,30 @@ class OrderController extends Controller
             'status' => 'canceled',
         ]);
 
-        return back()->with(
-            'success',
-            'Order canceled.'
-        );
+        return back()->with('success', 'Order canceled.');
     }
 
-    public function receipt(Request $request, Order $order)
-    {
-        abort_unless($order->customer_id === $request->user()->id, 404);
+    /**
+     * Download the order receipt PDF.
+     */
+    public function receipt(
+        Request $request,
+        Order $order
+    ) {
+        // Customers may only download their own receipts.
+        abort_unless(
+            (int) $order->customer_id === (int) $request->user()->id,
+            404
+        );
 
-        $order->load('customer', 'items');
+        $order->load([
+            'customer',
+            'items',
+        ]);
 
-        return Pdf::loadView('pdf.receipt', ['order' => $order])
+        return Pdf::loadView('pdf.receipt', [
+            'order' => $order,
+        ])
             ->setPaper('a4')
             ->download("receipt-{$order->id}.pdf");
     }

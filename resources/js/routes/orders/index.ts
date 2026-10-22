@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\OrderController::index
- * @see app/Http/Controllers/OrderController.php:17
+ * @see app/Http/Controllers/OrderController.php:22
  * @route '/orders'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\OrderController::index
- * @see app/Http/Controllers/OrderController.php:17
+ * @see app/Http/Controllers/OrderController.php:22
  * @route '/orders'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\OrderController::index
- * @see app/Http/Controllers/OrderController.php:17
+ * @see app/Http/Controllers/OrderController.php:22
  * @route '/orders'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\OrderController::index
- * @see app/Http/Controllers/OrderController.php:17
+ * @see app/Http/Controllers/OrderController.php:22
  * @route '/orders'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\OrderController::index
- * @see app/Http/Controllers/OrderController.php:17
+ * @see app/Http/Controllers/OrderController.php:22
  * @route '/orders'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\OrderController::index
- * @see app/Http/Controllers/OrderController.php:17
+ * @see app/Http/Controllers/OrderController.php:22
  * @route '/orders'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\OrderController::index
- * @see app/Http/Controllers/OrderController.php:17
+ * @see app/Http/Controllers/OrderController.php:22
  * @route '/orders'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\OrderController::cancel
- * @see app/Http/Controllers/OrderController.php:51
+ * @see app/Http/Controllers/OrderController.php:57
  * @route '/orders/{order}/cancel'
  */
 export const cancel = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -94,7 +94,7 @@ cancel.definition = {
 
 /**
 * @see \App\Http\Controllers\OrderController::cancel
- * @see app/Http/Controllers/OrderController.php:51
+ * @see app/Http/Controllers/OrderController.php:57
  * @route '/orders/{order}/cancel'
  */
 cancel.url = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -127,7 +127,7 @@ cancel.url = (args: { order: number | { id: number } } | [order: number | { id: 
 
 /**
 * @see \App\Http\Controllers\OrderController::cancel
- * @see app/Http/Controllers/OrderController.php:51
+ * @see app/Http/Controllers/OrderController.php:57
  * @route '/orders/{order}/cancel'
  */
 cancel.patch = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -137,7 +137,7 @@ cancel.patch = (args: { order: number | { id: number } } | [order: number | { id
 
     /**
 * @see \App\Http\Controllers\OrderController::cancel
- * @see app/Http/Controllers/OrderController.php:51
+ * @see app/Http/Controllers/OrderController.php:57
  * @route '/orders/{order}/cancel'
  */
     const cancelForm = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -152,7 +152,7 @@ cancel.patch = (args: { order: number | { id: number } } | [order: number | { id
 
             /**
 * @see \App\Http\Controllers\OrderController::cancel
- * @see app/Http/Controllers/OrderController.php:51
+ * @see app/Http/Controllers/OrderController.php:57
  * @route '/orders/{order}/cancel'
  */
         cancelForm.patch = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -168,7 +168,7 @@ cancel.patch = (args: { order: number | { id: number } } | [order: number | { id
     cancel.form = cancelForm
 /**
 * @see \App\Http\Controllers\OrderController::receipt
- * @see app/Http/Controllers/OrderController.php:75
+ * @see app/Http/Controllers/OrderController.php:83
  * @route '/orders/{order}/receipt'
  */
 export const receipt = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -183,7 +183,7 @@ receipt.definition = {
 
 /**
 * @see \App\Http\Controllers\OrderController::receipt
- * @see app/Http/Controllers/OrderController.php:75
+ * @see app/Http/Controllers/OrderController.php:83
  * @route '/orders/{order}/receipt'
  */
 receipt.url = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -216,7 +216,7 @@ receipt.url = (args: { order: number | { id: number } } | [order: number | { id:
 
 /**
 * @see \App\Http\Controllers\OrderController::receipt
- * @see app/Http/Controllers/OrderController.php:75
+ * @see app/Http/Controllers/OrderController.php:83
  * @route '/orders/{order}/receipt'
  */
 receipt.get = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -225,7 +225,7 @@ receipt.get = (args: { order: number | { id: number } } | [order: number | { id:
 })
 /**
 * @see \App\Http\Controllers\OrderController::receipt
- * @see app/Http/Controllers/OrderController.php:75
+ * @see app/Http/Controllers/OrderController.php:83
  * @route '/orders/{order}/receipt'
  */
 receipt.head = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -235,7 +235,7 @@ receipt.head = (args: { order: number | { id: number } } | [order: number | { id
 
     /**
 * @see \App\Http\Controllers\OrderController::receipt
- * @see app/Http/Controllers/OrderController.php:75
+ * @see app/Http/Controllers/OrderController.php:83
  * @route '/orders/{order}/receipt'
  */
     const receiptForm = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -245,7 +245,7 @@ receipt.head = (args: { order: number | { id: number } } | [order: number | { id
 
             /**
 * @see \App\Http\Controllers\OrderController::receipt
- * @see app/Http/Controllers/OrderController.php:75
+ * @see app/Http/Controllers/OrderController.php:83
  * @route '/orders/{order}/receipt'
  */
         receiptForm.get = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -254,7 +254,7 @@ receipt.head = (args: { order: number | { id: number } } | [order: number | { id
         })
             /**
 * @see \App\Http\Controllers\OrderController::receipt
- * @see app/Http/Controllers/OrderController.php:75
+ * @see app/Http/Controllers/OrderController.php:83
  * @route '/orders/{order}/receipt'
  */
         receiptForm.head = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
