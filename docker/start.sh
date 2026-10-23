@@ -18,11 +18,8 @@ mkdir -p \
 
 chown -R www-data:www-data storage bootstrap/cache
 
-echo "Discovering Laravel packages..."
-php artisan package:discover --ansi
-
-echo "Caching Laravel configuration..."
-php artisan config:cache
+echo "Running database migrations..."
+php artisan migrate --force
 
 echo "Starting PHP-FPM..."
 php-fpm -D
