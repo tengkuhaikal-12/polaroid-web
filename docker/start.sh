@@ -4,15 +4,22 @@ set -eu
 
 cd /var/www/html
 
-echo "Checking Laravel environment..."
-
 if [ -z "${APP_KEY:-}" ]; then
     echo "ERROR: APP_KEY is not configured."
     exit 1
 fi
 
-echo "Running database migrations..."
-php artisan migrate --force
+mkdir -p \
+    storage/framework/cache \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/logs \
+    bootstrap/cache
+
+chown -R www-data:www-data storage bootstrap/cache
+
+echo "Discovering Laravel packages..."
+php artisan package:discover --ansi
 
 echo "Caching Laravel configuration..."
 php artisan config:cache

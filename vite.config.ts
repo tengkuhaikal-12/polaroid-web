@@ -27,14 +27,14 @@ export default defineConfig({
         tailwindcss(),
 
         // Generate Wayfinder files locally.
-        // Vercel uses the files committed to the repository.
-        ...(!process.env.VERCEL
+        // Vercel and Docker builds use the files committed to the repository.
+        ...(!process.env.VERCEL && !process.env.DOCKER_BUILD
             ? [
-                  wayfinder({
-                      command: 'php artisan wayfinder:generate --with-form',
-                      formVariants: true,
-                  }),
-              ]
+                wayfinder({
+                    command: 'php artisan wayfinder:generate --with-form',
+                    formVariants: true,
+                }),
+            ]
             : []),
     ]),
     server: {

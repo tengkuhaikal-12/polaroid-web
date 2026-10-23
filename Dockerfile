@@ -1,8 +1,13 @@
 
 FROM php:8.3-fpm-bookworm
 
-# Install system packages, Nginx and PHP extension dependencies.
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# --------------------------------------------------
+# 1. Install system dependencies and PHP extensions
+# --------------------------------------------------
+
+# Install system dependencies and PHP extensions
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
     nginx \
     curl \
     ca-certificates \
@@ -16,6 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libicu-dev \
     libxml2-dev \
     libcurl4-openssl-dev \
+    libonig-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" \
     pdo_pgsql \
@@ -30,17 +36,34 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     dom \
     xml \
     opcache \
-    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Composer.
+
+# --------------------------------------------------
+# 2. Install Node.js 22 and npm
+# --------------------------------------------------
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x \
+    -o /tmp/nodesource_setup.sh \
+    && bash /tmp/nodesource_setup.sh \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends nodejs \
+    && node --version \
+    && npm --version \
+    && rm -f /tmp/nodesource_setup.sh \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# --------------------------------------------------
+# 3. Install Composer
+# --------------------------------------------------
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Install production PHP dependencies.
+# --------------------------------------------------
+# 4. Install Laravel dependencies
+# --------------------------------------------------
 COPY composer.json composer.lock ./
 
 RUN composer install \
@@ -50,21 +73,30 @@ RUN composer install \
     --optimize-autoloader \
     --no-scripts
 
-# Copy the Laravel application.
+# --------------------------------------------------
+# 5. Copy Laravel application
+# --------------------------------------------------
 COPY . .
 
-# Generate Composer autoload files and discover Laravel packages.
-RUN composer dump-autoload --no-dev --optimize \
-    && php artisan package:discover --ansi
+# Generate optimized Composer autoload files.
+RUN composer dump-autoload \
+    --no-dev \
+    --optimize \
+    --no-scripts
 
-# Install frontend dependencies and build React/Inertia assets.
-# Vite-plus runs the existing "vp build" script.
+# --------------------------------------------------
+# 6. Build React / Inertia frontend
+# --------------------------------------------------
+COPY package.json package-lock.json ./
+
 RUN npm ci \
-    && npm run build \
+    && DOCKER_BUILD=1 npm run build \
     && npm cache clean --force \
     && rm -rf node_modules
 
-# Create writable Laravel runtime directories.
+# --------------------------------------------------
+# 7. Prepare Laravel writable directories
+# --------------------------------------------------
 RUN mkdir -p \
     storage/framework/cache \
     storage/framework/sessions \
@@ -74,11 +106,12 @@ RUN mkdir -p \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R ug+rwx storage bootstrap/cache
 
-# Configure Nginx and container startup.
+# --------------------------------------------------
+# 8. Configure Nginx and container startup
+# --------------------------------------------------
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY docker/start.sh /usr/local/bin/start-app
 
-# Remove the default Nginx virtual host and normalize Windows line endings.
 RUN sed -i 's/\r$//' /usr/local/bin/start-app \
     && chmod +x /usr/local/bin/start-app \
     && rm -f /etc/nginx/sites-enabled/default

@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use App\Services\FirebaseStorageService;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Kreait\Firebase\Contract\Storage;
 use Kreait\Firebase\Factory;
@@ -17,12 +16,8 @@ class FirebaseServiceProvider extends ServiceProvider
             $bucketName = config('services.firebase.storage_bucket');
 
             if (!$credentials) {
-                Log::warning(
-                    'Firebase credentials are not configured.'
-                );
-
                 throw new \RuntimeException(
-                    'Firebase credentials are missing. Check FIREBASE_CREDENTIALS in .env.'
+                    'Firebase credentials are not configured. Set FIREBASE_CREDENTIALS.'
                 );
             }
 
@@ -34,15 +29,14 @@ class FirebaseServiceProvider extends ServiceProvider
 
             if (!$bucketName) {
                 throw new \RuntimeException(
-                    'Firebase storage bucket is missing. Check FIREBASE_STORAGE_BUCKET in .env.'
+                    'Firebase storage bucket is not configured. Set FIREBASE_STORAGE_BUCKET.'
                 );
             }
 
-            $factory = (new Factory())
+            return (new Factory())
                 ->withServiceAccount($credentials)
-                ->withDefaultStorageBucket($bucketName);
-
-            return $factory->createStorage();
+                ->withDefaultStorageBucket($bucketName)
+                ->createStorage();
         });
 
         $this->app->singleton(
