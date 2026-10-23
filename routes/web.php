@@ -13,6 +13,9 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PhotoEditorController;
 use App\Http\Controllers\StudioController;
 use App\Http\Controllers\Seller\StudioOrderController;
+use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -21,7 +24,7 @@ use App\Http\Controllers\Seller\StudioOrderController;
 */
 
 Route::get('/', function () {
-    $products = \App\Models\Product::latest()->get()->map(function ($product) {
+    $products = Product::latest()->get()->map(function ($product) {
         return [
             'id' => $product->id,
             'name' => $product->name,
@@ -130,9 +133,6 @@ Route::middleware('auth')->group(function () {
 | 5. Payment Gateway
 |--------------------------------------------------------------------------
 |
-| Keep the callback public because Bayarcash must be able to reach it.
-| Verify callback signatures in PaymentController.
-|
 */
 
 Route::middleware('auth')->group(function () {
@@ -182,9 +182,6 @@ Route::middleware('auth')->group(function () {
 | 7. Studio Print Requests
 |--------------------------------------------------------------------------
 |
-| Customer submits their photos and design for seller review.
-| Requires StudioController::submitPrintRequest().
-|
 */
 
 Route::middleware('auth')->group(function () {
@@ -211,15 +208,7 @@ Route::get('/dashboard', function () {
 |--------------------------------------------------------------------------
 | 9. Product Management
 |--------------------------------------------------------------------------
-|
-| Public storefront and admin product management use different routes.
-| Do not define the same route name twice.
-|
 */
-
-// Route::get('/products', function () {
-//     return Inertia::render('product/ProductManager');
-// })->name('products.page');
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/products', [
@@ -294,3 +283,28 @@ Route::middleware(['auth', 'seller'])
             [StudioOrderController::class, 'downloadPrintPdf']
         )->name('studio-orders.print-pdf');
     });
+
+
+/*
+|--------------------------------------------------------------------------
+| 11. Email Verification Route
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/email/verify', function() {
+    return Inertia::render('auth/VerifyEmail');
+})->middleware('auth')->name('verification.notice');
+
+Route::get(
+    '/email/verify/{id}/{hash}',
+    function (EmailVerificationRequest $request) {
+        $request->fulfill();
+
+        return redirect('/dashboard')->with('success','Email verified successfully');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+
+    return back()->with('status', 'verification-link-sent');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');

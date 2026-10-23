@@ -88,6 +88,7 @@ export default function Login() {
                                 {[
                                     'haikaltengku1741@gmail.com',
                                     'arif@gmail.com',
+                                    'naemah@gmail.com'
                                 ].map((email) => (
                                     <div
                                         key={email}
