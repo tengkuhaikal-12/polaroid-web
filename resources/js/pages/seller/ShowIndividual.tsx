@@ -1,46 +1,25 @@
 import React from 'react';
-
 import { Head, Link, useForm } from '@inertiajs/react';
-
 import type { FormEvent } from 'react';
-
 import {
-
     ArrowLeft,
-
     CheckCircle2,
-
     Clock,
-
     Package,
-
     Printer,
-
     XCircle,
-
     Image as ImageIcon,
-
     UserRound,
-
     CalendarDays,
-
     LoaderCircle,
-
     AlertCircle,
     Download,
-
 } from 'lucide-react';
-
 interface Customer {
-
     id: number;
-
     name: string;
-
     email: string;
-
 }
-
 
 interface Photo {
     id: number;
@@ -56,17 +35,11 @@ interface Photo {
 
 
 interface StudioCollection {
-
     id: number;
-
     status: string;
-
     photos: Photo[];
-
     seller_note?: string | null;
-
     approved_at?: string | null;
-
 }
 
 interface Payment {
@@ -85,7 +58,7 @@ interface Order {
 
     status: string;
 
-    total_amount?: number | string | null;
+    subtotal?: number | string | null;
 
     created_at: string;
 
@@ -464,17 +437,7 @@ export default function ShowIndividual({ order }: Props) {
                                 its progress.
 
                             </p>
-
-                            <a
-                                href={`/seller/studio-orders/${order.id}/print-pdf`}
-                                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#315C3B] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#26482E]"
-                            >
-                                <Download size={18} />
-                                Download Print-Ready PDF
-                            </a>
-
                         </div>
-
                         <span
 
                             className={`inline-flex w-fit items-center rounded-full px-4 py-2 text-sm font-bold ${statusStyles[order.status] ??
@@ -593,7 +556,7 @@ export default function ShowIndividual({ order }: Props) {
 
                                         <p className="mt-1 text-lg font-black">
 
-                                            {formatCurrency(order.total_amount)}
+                                            {formatCurrency(order.subtotal)}
 
                                         </p>
 
@@ -1131,7 +1094,7 @@ export default function ShowIndividual({ order }: Props) {
 
                                                     disabled={productionForm.processing}
 
-                                                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[#315C3B] px-4 py-3 font-bold text-white transition hover:bg-[#26482E] disabled:cursor-not-allowed disabled:opacity-60"
+                                                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[#315C3B] px-4 py-3 font-semibold text-white transition hover:bg-[#26482E] disabled:cursor-not-allowed disabled:opacity-60"
 
                                                 >
 
@@ -1231,6 +1194,14 @@ export default function ShowIndividual({ order }: Props) {
 
                                 )}
 
+                                <a
+                                    href={`/seller/studio-orders/${order.id}/print-pdf`}
+                                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[#315C3B] px-4 py-3 font-semibold text-white transition hover:bg-[#26482E] disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    <Download size={18} />
+                                    Download PDF
+                                </a>
+
                             </section>
 
                             {/* Progress */}
@@ -1266,143 +1237,65 @@ export default function ShowIndividual({ order }: Props) {
                                                         ? 'bg-[#315C3B] text-white'
 
                                                         : 'border border-gray-200 bg-white text-gray-300'
-
                                                         }`}
-
                                                 >
-
                                                     {step.completed ? (
-
                                                         <CheckCircle2 size={16} />
-
                                                     ) : (
-
                                                         <span className="text-xs font-bold">
-
                                                             {index + 1}
-
                                                         </span>
-
                                                     )}
-
                                                 </div>
-
                                                 {index < productionSteps.length - 1 && (
-
                                                     <div
-
                                                         className={`my-1 min-h-7 w-0.5 ${step.completed
-
                                                             ? 'bg-[#A7C5A0]'
-
                                                             : 'bg-gray-100'
-
                                                             }`}
-
                                                     />
-
                                                 )}
-
                                             </div>
-
                                             <div className="pb-5">
-
                                                 <p
-
                                                     className={`text-sm font-semibold ${step.completed
-
                                                         ? 'text-[#315C3B]'
-
                                                         : 'text-gray-400'
-
                                                         }`}
-
                                                 >
-
                                                     {step.label}
-
                                                 </p>
-
                                             </div>
-
                                         </div>
-
                                     ))}
-
                                 </div>
-
                             </section>
-
                             {/* Dates */}
-
                             <section className="rounded-2xl border border-[#E6EAE2] bg-white p-6 shadow-sm">
-
                                 <h3 className="font-bold">Important Dates</h3>
-
                                 <div className="mt-5 space-y-4">
-
                                     <div>
-
                                         <p className="text-xs text-gray-400">
-
                                             Submitted
-
                                         </p>
-
                                         <p className="mt-1 text-sm font-semibold">
-
                                             {formatDate(order.created_at)}
-
                                         </p>
-
                                     </div>
-
                                     <div>
-
                                         <p className="text-xs text-gray-400">
-
-                                            Approved
-
-                                        </p>
-
-                                        <p className="mt-1 text-sm font-semibold">
-
-                                            {formatDate(order.approved_at)}
-
-                                        </p>
-
-                                    </div>
-
-                                    <div>
-
-                                        <p className="text-xs text-gray-400">
-
                                             Completed
-
                                         </p>
-
                                         <p className="mt-1 text-sm font-semibold">
-
                                             {formatDate(order.completed_at)}
-
                                         </p>
-
                                     </div>
-
                                 </div>
-
                             </section>
-
                         </aside>
-
                     </div>
-
                 </main>
-
             </div>
-
         </>
-
     );
-
 }

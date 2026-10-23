@@ -260,7 +260,7 @@ approve.post = (args: { order: number | { id: number } } | [order: number | { id
     approve.form = approveForm
 /**
 * @see \App\Http\Controllers\Seller\StudioOrderController::reject
- * @see app/Http/Controllers/Seller/StudioOrderController.php:116
+ * @see app/Http/Controllers/Seller/StudioOrderController.php:120
  * @route '/seller/studio-orders/{order}/reject'
  */
 export const reject = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -275,7 +275,7 @@ reject.definition = {
 
 /**
 * @see \App\Http\Controllers\Seller\StudioOrderController::reject
- * @see app/Http/Controllers/Seller/StudioOrderController.php:116
+ * @see app/Http/Controllers/Seller/StudioOrderController.php:120
  * @route '/seller/studio-orders/{order}/reject'
  */
 reject.url = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -308,7 +308,7 @@ reject.url = (args: { order: number | { id: number } } | [order: number | { id: 
 
 /**
 * @see \App\Http\Controllers\Seller\StudioOrderController::reject
- * @see app/Http/Controllers/Seller/StudioOrderController.php:116
+ * @see app/Http/Controllers/Seller/StudioOrderController.php:120
  * @route '/seller/studio-orders/{order}/reject'
  */
 reject.post = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -318,7 +318,7 @@ reject.post = (args: { order: number | { id: number } } | [order: number | { id:
 
     /**
 * @see \App\Http\Controllers\Seller\StudioOrderController::reject
- * @see app/Http/Controllers/Seller/StudioOrderController.php:116
+ * @see app/Http/Controllers/Seller/StudioOrderController.php:120
  * @route '/seller/studio-orders/{order}/reject'
  */
     const rejectForm = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -328,7 +328,7 @@ reject.post = (args: { order: number | { id: number } } | [order: number | { id:
 
             /**
 * @see \App\Http\Controllers\Seller\StudioOrderController::reject
- * @see app/Http/Controllers/Seller/StudioOrderController.php:116
+ * @see app/Http/Controllers/Seller/StudioOrderController.php:120
  * @route '/seller/studio-orders/{order}/reject'
  */
         rejectForm.post = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -339,7 +339,7 @@ reject.post = (args: { order: number | { id: number } } | [order: number | { id:
     reject.form = rejectForm
 /**
 * @see \App\Http\Controllers\Seller\StudioOrderController::printPdf
- * @see app/Http/Controllers/Seller/StudioOrderController.php:213
+ * @see app/Http/Controllers/Seller/StudioOrderController.php:217
  * @route '/seller/studio-orders/{order}/print-pdf'
  */
 export const printPdf = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -354,7 +354,7 @@ printPdf.definition = {
 
 /**
 * @see \App\Http\Controllers\Seller\StudioOrderController::printPdf
- * @see app/Http/Controllers/Seller/StudioOrderController.php:213
+ * @see app/Http/Controllers/Seller/StudioOrderController.php:217
  * @route '/seller/studio-orders/{order}/print-pdf'
  */
 printPdf.url = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -387,7 +387,7 @@ printPdf.url = (args: { order: number | { id: number } } | [order: number | { id
 
 /**
 * @see \App\Http\Controllers\Seller\StudioOrderController::printPdf
- * @see app/Http/Controllers/Seller/StudioOrderController.php:213
+ * @see app/Http/Controllers/Seller/StudioOrderController.php:217
  * @route '/seller/studio-orders/{order}/print-pdf'
  */
 printPdf.get = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -396,7 +396,7 @@ printPdf.get = (args: { order: number | { id: number } } | [order: number | { id
 })
 /**
 * @see \App\Http\Controllers\Seller\StudioOrderController::printPdf
- * @see app/Http/Controllers/Seller/StudioOrderController.php:213
+ * @see app/Http/Controllers/Seller/StudioOrderController.php:217
  * @route '/seller/studio-orders/{order}/print-pdf'
  */
 printPdf.head = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -406,7 +406,7 @@ printPdf.head = (args: { order: number | { id: number } } | [order: number | { i
 
     /**
 * @see \App\Http\Controllers\Seller\StudioOrderController::printPdf
- * @see app/Http/Controllers/Seller/StudioOrderController.php:213
+ * @see app/Http/Controllers/Seller/StudioOrderController.php:217
  * @route '/seller/studio-orders/{order}/print-pdf'
  */
     const printPdfForm = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -416,7 +416,7 @@ printPdf.head = (args: { order: number | { id: number } } | [order: number | { i
 
             /**
 * @see \App\Http\Controllers\Seller\StudioOrderController::printPdf
- * @see app/Http/Controllers/Seller/StudioOrderController.php:213
+ * @see app/Http/Controllers/Seller/StudioOrderController.php:217
  * @route '/seller/studio-orders/{order}/print-pdf'
  */
         printPdfForm.get = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -425,7 +425,7 @@ printPdf.head = (args: { order: number | { id: number } } | [order: number | { i
         })
             /**
 * @see \App\Http\Controllers\Seller\StudioOrderController::printPdf
- * @see app/Http/Controllers/Seller/StudioOrderController.php:213
+ * @see app/Http/Controllers/Seller/StudioOrderController.php:217
  * @route '/seller/studio-orders/{order}/print-pdf'
  */
         printPdfForm.head = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

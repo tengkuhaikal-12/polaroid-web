@@ -68,7 +68,7 @@ export default function Login() {
                         </div>
 
                         
-                        <aside className="rounded-xl border-2 border-[#31513A] p-4 sm:p-5 mb-2">
+                        <aside className="rounded-[2rem] border-2 border-[#31513A] p-4 sm:p-5 mb-2">
                             <div className="mb-4 flex items-center gap-3">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl border-2 border-[#31513A] bg-[#CDE8B5]">
                                     <Mail size={20} className="text-[#31513A]" />
@@ -129,7 +129,7 @@ export default function Login() {
                         </aside>
                     
                         {/* Login card */}
-                        <section className="rounded-[2rem] border-4 border-[#31513A] bg-white p-6 shadow-[6px_6px_0_#31513A] sm:p-9 sm:shadow-[8px_8px_0_#31513A]">
+                        <section className="rounded-[2rem] border-2 border-[#31513A] bg-white p-6 sm:p-9">
                             {/* Title */}
                             <div className="mb-8">
                                 <div className="mb-5 flex items-center gap-4">
@@ -310,17 +310,16 @@ export default function Login() {
                             </form>
 
                             {/* Register */}
-                            <div className="mt-7 border-t-2 border-dashed border-[#D5E2D0] pt-6 text-center">
+                            <div className="mt-7 border-t-2 border-dashed border-[#D5E2D0] pt-6 text-center flex gap-2 justify-center items-center">
                                 <p className="text-sm font-semibold text-[#55725D]">
                                     New around here?
                                 </p>
 
                                 <Link
                                     href="/register"
-                                    className="mt-2 inline-flex items-center gap-2 font-black text-[#F26B82] underline decoration-2 underline-offset-4 transition hover:text-[#CDE8B5]"
+                                    className="m inline-flex items-center gap-2 font-semibold text-[#F26B82] underline decoration-2 underline-offset-4 transition hover:text-[#CDE8B5]"
                                 >
                                     Create an account
-                                    <ArrowRight className="h-4 w-4" />
                                 </Link>
                             </div>
                         </section>

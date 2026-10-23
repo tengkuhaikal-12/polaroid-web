@@ -18,7 +18,13 @@ interface IndexProps {
     [key: string]: unknown;
 }
 
-function ProductImage({ product }: { product: Product }) {
+function ProductImage({
+    product,
+    compact = false,
+}: {
+    product: Product;
+    compact?: boolean;
+}) {
     const [hasError, setHasError] = useState(false);
 
     useEffect(() => {
@@ -26,7 +32,13 @@ function ProductImage({ product }: { product: Product }) {
     }, [product.image]);
 
     return (
-        <div className="flex h-52 items-center justify-center overflow-hidden rounded-[1.5rem] border-2 border-[#31513A] bg-black p-3">
+        <div
+            className={`flex items-center justify-center overflow-hidden ${
+    compact
+        ? 'h-16 w-16 shrink-0 rounded-xl bg-white p-1'
+        : 'h-52 w-full rounded-[1.5rem] bg-black p-3'
+} `}
+        >
             {product.image && !hasError ? (
                 <img
                     src={product.image}
@@ -36,16 +48,27 @@ function ProductImage({ product }: { product: Product }) {
                     onError={() => setHasError(true)}
                 />
             ) : (
-                <div className="flex flex-col items-center gap-2 text-white">
-                    <ImageOff className="h-8 w-8" />
-                    <p className="text-sm">
-                        {product.image ? 'Image unavailable' : 'No image'}
-                    </p>
+                <div
+                    className={`flex flex-col items-center justify-center gap-1 ${
+    compact ? 'text-[#55725D]' : 'text-white'
+} `}
+                >
+                    <ImageOff
+                        className={compact ? 'h-5 w-5' : 'h-8 w-8'}
+                    />
+                    {!compact && (
+                        <p className="text-sm">
+                            {product.image
+                                ? 'Image unavailable'
+                                : 'No image'}
+                        </p>
+                    )}
                 </div>
             )}
         </div>
     );
 }
+
 
 export default function ProductManager({ products }: IndexProps) {
     const { props } = usePage();
@@ -116,57 +139,116 @@ export default function ProductManager({ products }: IndexProps) {
                         </Link>
                     </div>
 
-                    <div className="mt-8 grid gap-8 sm:grid-cols-2 md:grid-cols-3">
-                        {products.map((product) => (
-                            <div
-                                key={product.id}
-                                className={`rounded-[2rem] border-4 border-[#31513A] ${product.color || 'bg-white'} p-5 shadow-[7px_7px_0_#31513A]`}
-                            >
-                                <ProductImage product={product} />
 
-                                <div className="mt-5">
-                                    <div className="flex items-start justify-between gap-3">
-                                        <h3 className="text-2xl font-black">
-                                            {product.name}
-                                        </h3>
+                    <div className="mt-5 overflow-hidden rounded-2xl border-2 border-[#31513A] bg-white">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="border-b-2 border-[#31513A] bg-[#CDE8B5]">
+                                    <tr>
+                                        <th className="px-6 py-4 text-sm font-black tracking-wider">
+                                            ID
+                                        </th>
+                                        <th className="px-6 py-4 text-sm font-black ">
+                                            Product Image
+                                        </th>
+                                        <th className="px-6 py-4 text-sm font-black tracking-wider">
+                                            Product Name
+                                        </th>
+                                        <th className="px-6 py-4 text-sm font-black  tracking-wider">
+                                            Price
+                                        </th>
+                                        <th className="px-6 py-4 text-sm font-black  tracking-wider">
+                                            Prints
+                                        </th>
+                                        <th className="px-6 py-4 text-right text-sm font-black  tracking-wider">
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
 
-                                        <span className="shrink-0 text-xl font-bold">
-                                            RM {Number(product.price).toFixed(2)}
-                                        </span>
-                                    </div>
-
-                                    <p className="mt-2 font-semibold text-[#55725D]">
-                                        {product.prints} prints
-                                    </p>
-
-                                    <div className="mt-5 flex justify-end gap-3">
-                                        <Link
-                                            href={`/admin/products/${product.id}/edit`}
-                                            aria-label={`Edit ${product.name}`}
-                                            className="flex items-center justify-center rounded-full border-2 border-[#31513A] bg-[#FFF0A8] p-3 shadow-[3px_3px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+                                <tbody>
+                                    {products.map((product) => (
+                                        <tr
+                                            key={product.id}
+                                            className="transition odd:bg-gray-200 hover:bg-[#FFF8EA]"
                                         >
-                                            <Edit3 className="h-4 w-4" />
-                                        </Link>
+                                            <td className='whitespace-nowrap px-6 py-5'>
+                                                <p className="text-[#55725D]">
+                                                    #{product.id}
+                                                </p>
+                                            </td>
+                                            {/* Product */}
+                                            <td className="whitespace-nowrap px-6 py-5">
 
-                                        <button
-                                            type="button"
-                                            onClick={() => confirmDelete(product.id)}
-                                            aria-label={`Delete ${product.name}`}
-                                            className="flex items-center justify-center rounded-full border-2 border-[#31513A] bg-[#FF9EAD] p-3 shadow-[3px_3px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                                                <ProductImage product={product} compact/>
 
-                        {products.length === 0 && (
-                            <p className="col-span-full rounded-2xl border-2 border-dashed border-[#31513A] p-8 text-center font-semibold">
-                                No products yet. Add your first pack! 🍓
-                            </p>
-                        )}
+                                            </td>
+
+                                            <td className="whitespace-nowrap px-6 py-5">
+                                                <p className="text-[#31513A]">
+                                                    {product.name}
+                                                </p>
+
+                                            </td>
+
+                                            {/* Price */}
+                                            <td className="whitespace-nowrap px-6 py-5">
+                                                <span className="text-[#31513A]">
+                                                    RM {Number(product.price).toFixed(2)}
+                                                </span>
+                                            </td>
+
+                                            {/* Prints */}
+                                            <td className="whitespace-nowrap px-6 py-5">
+                                                <span className="inline-flex rounded-full border-1 border-[#31513A] bg-[#FFF0A8] px-3 py-1.5 text-sm font-bold text-[#31513A]">
+                                                    {product.prints} prints
+                                                </span>
+                                            </td>
+
+                                            {/* Actions */}
+                                            <td className="px-6 py-5">
+                                                <div className="flex justify-end gap-3">
+                                                    <Link
+                                                        href={`/admin/products/${product.id}/edit`}
+                                                        aria-label={`Edit ${product.name}`}
+                                                        title="Edit product"
+                                                        className="flex items-center justify-center rounded-full border-2 border-[#31513A] bg-[#FFF0A8] p-3 shadow-[3px_3px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+                                                    >
+                                                        <Edit3 className="h-4 w-4" />
+                                                    </Link>
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => confirmDelete(product.id)}
+                                                        aria-label={`Delete ${product.name}`}
+                                                        title="Delete product"
+                                                        className="flex items-center justify-center rounded-full border-2 border-[#31513A] bg-[#FF9EAD] p-3 shadow-[3px_3px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+
+                                    {/* Empty state */}
+                                    {products.length === 0 && (
+                                        <tr>
+                                            <td colSpan={4} className="px-6 py-16 text-center">
+                                                <p className="text-lg font-black text-[#31513A]">
+                                                    No products yet 🍓
+                                                </p>
+                                                <p className="mt-2 text-sm text-[#55725D]">
+                                                    Add your first pack to get started!
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
+
                 </div>
             </div>
 

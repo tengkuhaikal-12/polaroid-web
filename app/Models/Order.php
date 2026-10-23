@@ -22,6 +22,7 @@ class Order extends Model
         'submitted_at',
         'approved_at',
         'completed_at',
+        'product_name',
         'seller_note',
     ];
 

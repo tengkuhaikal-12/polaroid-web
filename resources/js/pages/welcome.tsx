@@ -120,44 +120,41 @@ export default function Welcome({ products }: WelcomeProps) {
                         </h2>
                     </div>
 
-                    <div className="grid gap-8 md:grid-cols-3">
+
+                    <div className="flex flex-wrap justify-center gap-8">
                         {products.map((product) => (
                             <div
                                 key={product.id}
-                                // 1. Added flex flex-col justify-between here
-                                className={`rounded-[2rem] border-4 border-[#31513A] ${product.color} flex flex-col justify-between p-5 shadow-[7px_7px_0_#31513A]`}
+                                className={`flex w-full max-w-sm flex-col rounded-3xl border-2 border-[#31513A] ${product.color || 'bg-[#FFF8EA]'
+                                    } p-4 transition-transform duration-200 hover:-translate-y-1 sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.5rem)]`}
                             >
-                                <div>
-                                    <div className="flex h-52 items-center justify-center overflow-hidden rounded-[1.5rem] border-2 border-[#31513A] bg-black p-3">
-                                        <img
-                                            src={product.image}
-                                            alt={product.name}
-                                            className="h-full w-full object-contain shadow-sm"
-                                        />
-                                    </div>
+                                {/* Image */}
+                                <div className="relative flex h-56 items-center justify-center overflow-hidden rounded-2xl border-2 border-[#31513A] bg-gray-200 p-4">
+                                    <img
+                                        src={product.image}
+                                        alt={product.name}
+                                        loading="lazy"
+                                        className="h-full w-full object-contain"
+                                    />
 
-                                    {/* 2. Added flex-1 to let text content fill space */}
-                                    <div className="mt-5 flex flex-col">
-                                        <div className="flex items-center justify-between">
-                                            <h3 className="text-2xl font-black">
-                                                {product.name}
-                                            </h3>
-
-                                            <p className="font-semibold text-[#55725D]">
-                                                {product.prints}
-                                            </p>
-                                        </div>
-
-                                        <div className="mt-3 flex items-center justify-between">
-                                            <span className="text-xl font-black">
-                                                RM {product.price}
-                                            </span>
-                                        </div>
-                                    </div>
+                                    <span className="absolute top-3 right-3 rounded-full border-2 border-[#31513A] bg-[#CDE8B5] px-3 py-1 text-xs font-black text-[#31513A]">
+                                        {product.prints} prints ♡
+                                    </span>
                                 </div>
 
-                                {/* 3. Changed mt-5 to mt-auto so it always pins to the bottom */}
-                                <div className="mt-auto w-full pt-5">
+                                {/* Details */}
+                                <div className="flex flex-1 flex-col pt-5">
+                                    <h3 className="break-words text-2xl font-black text-[#31513A]">
+                                        {product.name}
+                                    </h3>
+
+
+                                    <p className="text-2xl font-black text-[#31513A]">
+                                        RM {Number(product.price).toFixed(2)}
+                                    </p>
+
+
+                                    {/* Button */}
                                     <button
                                         type="button"
                                         onClick={() =>
@@ -167,15 +164,16 @@ export default function Welcome({ products }: WelcomeProps) {
                                                 { preserveScroll: true },
                                             )
                                         }
-                                        className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-[#31513A] bg-[#F26B82] px-5 py-2 text-sm font-semibold text-white shadow-[3px_3px_0_#31513A] transition hover:translate-x-1 hover:translate-y-1 hover:shadow-none md:text-base"
+                                        className="mt-5 flex w-full items-center justify-center gap-2 rounded-full border-2 border-[#31513A] bg-[#F26B82] px-5 py-3 font-black text-white shadow-[3px_3px_0_#31513A] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:scale-[0.98]"
                                     >
-                                        <Plus className="inline-block h-5 w-5" />{' '}
+                                        <Plus className="h-5 w-5" />
                                         Add to cart
                                     </button>
                                 </div>
                             </div>
                         ))}
                     </div>
+
                 </section>
 
                 {/* HOW IT WORKS */}

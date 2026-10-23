@@ -93,7 +93,7 @@ function getItemName(item: CartItem) {
 
     return quantity === 0
         ? 'Studio Album Only'
-        : `Studio ${quantity}-Print Pack`;
+        : `PolaroidKU ${quantity} pcs`;
 }
 
 function getItemDescription(item: CartItem) {

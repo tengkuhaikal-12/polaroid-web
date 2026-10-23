@@ -81,7 +81,11 @@ class StudioOrderController extends Controller
         Order $order,
         Request $request
     ): RedirectResponse {
-        DB::transaction(function () use ($order, $request) {
+        $validated = $request->validate([
+            'seller_note' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        DB::transaction(function () use ($order, $validated) {
             $order = Order::query()
                 ->whereKey($order->id)
                 ->lockForUpdate()
@@ -95,21 +99,21 @@ class StudioOrderController extends Controller
             }
 
             $order->update([
-                'status' => 'awaiting_payment',
+                'status' => 'paid',
                 'approved_at' => now(),
-                'seller_note' => $request->input('seller_note'),
+                'seller_note' => $validated['seller_note'] ?? $order->seller_note,
             ]);
 
             $order->studioCollections()->update([
                 'status' => 'approved',
                 'approved_at' => now(),
-                'seller_note' => $request->input('seller_note'),
+                'seller_note' => $validated['seller_note'] ?? $order->seller_note,
             ]);
         });
 
         return back()->with(
             'success',
-            'Order approved. The customer can now proceed to payment.'
+            'Order approved.'
         );
     }
 

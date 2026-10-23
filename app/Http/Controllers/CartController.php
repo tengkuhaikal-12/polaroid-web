@@ -322,7 +322,7 @@ class CartController extends Controller
                     $imagePath = $this->firebaseStorage->upload(
                         $image,
                         'studio-photos',
-                        'studio_photo_' . $user->name . '_' . time()
+                        'studio_photo_' . $user->name . '-' . time()
                     );
 
                     $newFiles[] = $imagePath;
